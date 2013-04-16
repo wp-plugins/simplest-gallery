@@ -35,6 +35,8 @@ Ultra-simple:
 2. Create or edit any page or post. Insert a gallery into it by using the Wordpress builtin method ("Add Media" button).
 3. View page and enjoy the gallery!
 
+4. OPTIONAL: if you don't like how your galleries look like, go to WP Admin / Settings / Simplest Gallery and change the format of the gallery
+
 For more tips and help/support, check out the plugin's web page: [Plugin page](http://www.sitiweb-bologna.com/risorse/wordpress-simplest-gallery-plugin/ "Simplest Gallery Plugin page")
 
 
@@ -47,5 +49,6 @@ For more tips and help/support, check out the plugin's web page: [Plugin page](h
 
 == Changelog ==
 
+* 1.2 2013-04-16	Added possibility to select from a list of gallery types (for the moment: with/without labels)
 * 1.1 2013-04-01	Replaced standard Lightbox with Lightbox 1.2.1 by Janis Skarnelis available under MIT License http://en.wikipedia.org/wiki/MIT_License
 * 1.0 2013-03-28	First working version
