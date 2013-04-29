@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 1.2
+Version: 1.3
 Plugin URI: http://www.sitiweb-bologna.com/risorse/wordpress-simplest-gallery-plugin/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,7 +14,9 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
-   + 1.2 2013-04-16	Added possibility to select from a list of gallery types (for the moment: with/without labels)
+   + 1.3 2013-04-29	Added API support for external modules: More gallery formats can now be easily added with custom made plugins. 
+   			Added support for gallery_type custom field for using different gallery types on different posts/pages
+   + 1.2 2013-04-16	Added possibility to select from a list of gallery types (for the moment: with/without labels).Multi-language support
    + 1.1 2013-04-01	Replaced standard Lightbox with Lightbox 1.2.1 by Janis Skarnelis available under MIT License http://en.wikipedia.org/wiki/MIT_License
    + 1.0 2013-03-28	First working version
 */
@@ -25,6 +27,8 @@ $sga_gallery_types = array(
 				'lightbox_labeled'=>'FancyBox WITH labels',
 				// new types will be added soon...
 			);
+
+$sga_gallery_params = array();
 
 add_filter('the_content', 'sga_contentfilter');
 add_action('wp_head', 'sga_head');
@@ -42,19 +46,53 @@ if(is_admin()){
 //add_action("template_redirect", "sga_outside_init"); // UNUSED
 
 // Disable the hated admin bar
-add_filter( 'show_admin_bar', '__return_false' );
+//add_filter( 'show_admin_bar', '__return_false' );
 
 
 // Plugin functions
 
 function sga_init() {
-    $urlpath = WP_PLUGIN_URL . '/' . basename(dirname(__FILE__));
+	global $sga_gallery_types,$sga_options,$sga_gallery_params;
+    
+	$urlpath = WP_PLUGIN_URL . '/' . basename(dirname(__FILE__));
 
-    wp_enqueue_script('fancybox', $urlpath . '/fancybox/jquery.fancybox-1.2.1.js', array('jquery'), '1.2.1');
-    wp_enqueue_script('easing', $urlpath . '/fancybox/jquery.easing.1.3.js', array('jquery'), '1.3');
-    wp_enqueue_script('fb-init', $urlpath . '/fbg-init.js', array('fancybox'), '1.0.0', true);
-    wp_enqueue_style('fancybox', $urlpath . '/fancybox/jquery.fancybox.css');
-    wp_enqueue_style('fancybox-override', $urlpath . '/fbg-override.css');
+	//sga_get_options();
+	//$gallery_type = $sga_options['sga_gallery_type'];
+
+	foreach ($sga_gallery_types as $gallery_type=>$name) {
+			
+		switch ($gallery_type) {
+		case 'lightbox':
+		case 'lightbox_labeled':
+		case '':
+			wp_enqueue_script('fancybox', $urlpath . '/fancybox/jquery.fancybox-1.2.1.js', array('jquery'), '1.2.1');
+			wp_enqueue_script('easing', $urlpath . '/fancybox/jquery.easing.1.3.js', array('jquery'), '1.3');
+			wp_enqueue_script('fb-init', $urlpath . '/fbg-init.js', array('fancybox'), '1.0.0', true);
+			wp_enqueue_style('fancybox', $urlpath . '/fancybox/jquery.fancybox.css');
+			wp_enqueue_style('fancybox-override', $urlpath . '/fbg-override.css');
+		break;
+		default:
+			// Include Scripts
+			if ($arr = $sga_gallery_params[$gallery_type]['scripts']) {
+				if (is_array($arr) && count($arr)) {
+					foreach ($arr as $k=>$v) {
+						if (is_array($v)) {
+							wp_enqueue_script($k, $v[0], $v[1], $v[2]);
+						}
+					}
+				}
+			}
+
+			// Include CSSs		
+			if ($arr = $sga_gallery_params[$gallery_type]['css']) {
+				if (is_array($arr) && count($arr)) {
+					foreach ($arr as $k=>$v) {
+						wp_enqueue_style($k, $v);
+					}
+				}
+			}
+		} // Switch
+	} // Foreach
 }
 
 function sga_admin_menu() {
@@ -92,13 +130,11 @@ function sga_section_text() {
 }
 
 function sga_settings_html() {
-	global $sga_gallery_types;
+	global $sga_gallery_types,$sga_options;
 	
-	$options = get_option('sga_options');
+	sga_get_options();
 	
-	//print_r($options); //exit;
-	
-	$typedef = $options['sga_gallery_type'];
+	$typedef = $sga_options['sga_gallery_type'];
 	
 ?>
 <select id="sga_gallery_type" name="sga_options[sga_gallery_type]">
@@ -127,7 +163,7 @@ function sga_options_validate($input) {
 }
 
 function sga_contentfilter($content = '') {
-	global $sga_gallery_types,$post;
+	global $sga_gallery_types,$post,$sga_options,$sga_gallery_params;
 	
 	$gallid = $post->ID; 
 
@@ -140,13 +176,14 @@ function sga_contentfilter($content = '') {
 		
 		if (count($images)) {
 		
-			$options = get_option('sga_options');
+			sga_get_options();
 			
-			$gallery_type = $options['sga_gallery_type'];
+			$gallery_type = $sga_options['sga_gallery_type'];
 			
 			switch ($gallery_type) {
+			case 'lightbox':
 			case 'lightbox_labeled':
-			default:
+			case '':
 		
 				$gall = '
 <style type="text/css">
@@ -180,6 +217,17 @@ function sga_contentfilter($content = '') {
 				}
 
 				$gall .= '</div><br clear="all" />';
+			break;
+			default:
+				if ($hfunct = $sga_gallery_params[$gallery_type]['render_function']) {
+					if (function_exists($hfunct)) {
+						if ($res = call_user_func($hfunct,$images,$thumbs)) {
+							$gall = "<!-- Rendered by {$sga_gallery_types[$gallery_type]} BEGIN -->\n";
+							$gall .= $res;
+							$gall .= "<!-- Rendered by {$sga_gallery_types[$gallery_type]} END -->\n";
+						}
+					}
+				}
 			} // Closes SWITCH
 
 			$content = str_replace($matches[0],$gall,$content);
@@ -237,10 +285,24 @@ function sga_strrpos(  $haystack, $needle, $offset = 0  ) {
 
 
 function sga_head() {
+	global $sga_gallery_types,$sga_options,$sga_gallery_params;
+    
 ?>
 <!-- Added by Simplest Gallery Plugin BEGIN -->
-
-
+<?php
+	sga_get_options('CHECK');
+	$gallery_type = $sga_options['sga_gallery_type'];
+			
+	if ($hfunct = $sga_gallery_params[$gallery_type]['header_function']) {
+		if (function_exists($hfunct)) {
+			if ($res = call_user_func($hfunct)) {
+				echo "<!-- Added by {$sga_gallery_types[$gallery_type]} BEGIN -->\n";
+				echo $res;
+				echo "<!-- Added by {$sga_gallery_types[$gallery_type]} END -->\n";
+			}
+		}
+	}
+?>
 <!-- Added by Simplest Gallery Plugin END -->
 <?php
 
@@ -254,6 +316,49 @@ function sga_footer() {
 
 }
 
+// Optimized code: gets plugin options only when called the first time
+// $check_post_fields: defaults to FALSE. Set to TRUE if you would like to inspect the current posts' custom fields for gallery_type selection
+function sga_get_options($check_post_fields=FALSE) {
+	global $sga_options,$sga_gallery_types,$post;
+	
+	if (!is_array($sga_options)) {
+		$sga_options = get_option('sga_options');
+	}
+
+	if ($check_post_fields && $post) {
+		// If custom field 'gallery_type' is used, pick it to select gallery type
+		if (($forced_type = get_post_meta($post->ID, 'gallery_type', true)) && $sga_gallery_types[$forced_type]) {
+			$sga_options['sga_gallery_type'] = $forced_type;
+		}
+	}	
+}
+
+function sga_register_gallery_type($gallery_type_id,$gallery_type_name,$render_function,$header_function,$scripts_array,$css_array) {
+	global $sga_gallery_types,$sga_gallery_params;
+	
+	if (!$gallery_type_id || !$gallery_type_name) return FALSE;
+
+	$sga_gallery_types[$gallery_type_id] = $gallery_type_name;
+
+	$paramsarr = array();
+	
+	if ($render_function) {
+		$paramsarr['render_function']=$render_function;
+	}
+	if ($header_function) {
+		$paramsarr['header_function']=$header_function;
+	}
+	if ($scripts_array && is_array($scripts_array)) {
+		$paramsarr['scripts']=$scripts_array;
+	}
+	if ($css_array && is_array($css_array)) {
+		$paramsarr['css']=$css_array;
+	}
+	
+	$sga_gallery_params[$gallery_type_id] = $paramsarr;
+	
+	return TRUE;
+}
 
 
 ?>

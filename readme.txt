@@ -8,18 +8,18 @@ Stable tag: trunk
 License: MIT License
 License URI: http://en.wikipedia.org/wiki/MIT_License
 
-The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
+The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with nice visual effects.
 
 
 
 == Description ==
 
 
-"Simplest Gallery Plugin" is the simplest way to integrate WordPress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect.
+"Simplest Gallery Plugin" is the simplest way to integrate WordPress' builtin Photo Galleries into your pages with nice visual effects. 
 
 Since v. 3.5.1, WordPress has got a new Gallery functionality which is great and lets you create, organize and place images galleries in your pages and posts with great ease.
 
-This little plugin adds a flavor of magic to you galleries by seamlessly adding a fancybox jQuery effect to your galleries at no effort.
+This little plugin adds a flavor of magic to you galleries by seamlessly adding a fancybox jQuery effect to your galleries at no effort. You can add more gallery styles later if you want.
 
 Just install, activate and experience the wonder of your WordPress galleries!
 
@@ -35,7 +35,7 @@ Ultra-simple:
 2. Create or edit any page or post. Insert a gallery into it by using the Wordpress builtin method ("Add Media" button).
 3. View page and enjoy the gallery!
 
-4. OPTIONAL: if you don't like how your galleries look like, go to WP Admin / Settings / Simplest Gallery and change the format of the gallery
+4. OPTIONAL: if you don't like how your galleries look like, go to WP Admin / Settings / Simplest Gallery and change the format of the gallery. You can add more gallery styles by adding extension plugins.
 
 For more tips and help/support, check out the plugin's web page: [Plugin page](http://www.sitiweb-bologna.com/risorse/wordpress-simplest-gallery-plugin/ "Simplest Gallery Plugin page")
 
@@ -49,6 +49,8 @@ For more tips and help/support, check out the plugin's web page: [Plugin page](h
 
 == Changelog ==
 
-* 1.2 2013-04-16	Added possibility to select from a list of gallery types (for the moment: with/without labels)
+* 1.3 2013-04-29	Added API support for external modules: More gallery formats can now be easily added with custom made plugins. 
+   			Added support for gallery_type custom field for using different gallery types on different posts/pages
+* 1.2 2013-04-16	Added possibility to select from a list of gallery types (for the moment: with/without labels). Added multi-language support.
 * 1.1 2013-04-01	Replaced standard Lightbox with Lightbox 1.2.1 by Janis Skarnelis available under MIT License http://en.wikipedia.org/wiki/MIT_License
 * 1.0 2013-03-28	First working version
