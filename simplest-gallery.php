@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 1.3
-Plugin URI: http://www.sitiweb-bologna.com/risorse/wordpress-simplest-gallery-plugin/
+Version: 2.0
+Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
 Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
@@ -14,6 +14,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
+   + 2.0 2013-07-21	Replaced included fancybox library to FancyBox 2.1.5 by Janis Skarnelis - http://fancyapps.com/fancybox/ in order to fix IE10 compatibility issues for default gallery style
    + 1.3 2013-04-29	Added API support for external modules: More gallery formats can now be easily added with custom made plugins. 
    			Added support for gallery_type custom field for using different gallery types on different posts/pages
    + 1.2 2013-04-16	Added possibility to select from a list of gallery types (for the moment: with/without labels).Multi-language support
@@ -65,10 +66,11 @@ function sga_init() {
 		case 'lightbox':
 		case 'lightbox_labeled':
 		case '':
-			wp_enqueue_script('fancybox', $urlpath . '/fancybox/jquery.fancybox-1.2.1.js', array('jquery'), '1.2.1');
-			wp_enqueue_script('easing', $urlpath . '/fancybox/jquery.easing.1.3.js', array('jquery'), '1.3');
-			wp_enqueue_script('fb-init', $urlpath . '/fbg-init.js', array('fancybox'), '1.0.0', true);
-			wp_enqueue_style('fancybox', $urlpath . '/fancybox/jquery.fancybox.css');
+			wp_enqueue_script('jquery', $urlpath . '/lib/jquery-1.10.1.min.js', false, '1.10.1');
+			wp_enqueue_script('jquery.mousewheel', $urlpath . '/lib/jquery.mousewheel-3.0.6.pack.js', array('jquery'), '3.0.6');
+			wp_enqueue_script('fancybox', $urlpath . '/source/jquery.fancybox.js', array('jquery'), '2.1.5', true);
+			wp_enqueue_script('fancybox-init', $urlpath . '/fbg-init.js', array('fancybox'), '2.1.5', true);
+			wp_enqueue_style('fancybox', $urlpath . '/source/jquery.fancybox.css');
 			wp_enqueue_style('fancybox-override', $urlpath . '/fbg-override.css');
 		break;
 		default:
@@ -209,7 +211,7 @@ function sga_contentfilter($content = '') {
 					$thumb = $thumbs[$i];
 					$image = $images[$i];
 					$gall .= '<dl class="gallery-item"><dt class="gallery-icon">
-					<a href="'.$image[0].'" title="'.$thumb[5].'" rel="gallery-'.$gallid.'"><img width="'.$thumb[1].'" height="'.$thumb[2].'" class="attachment-thumbnail" src="'.$thumb[0].'" /></a></dt>';
+					<a class="fancybox" href="'.$image[0].'" title="'.$thumb[5].'" rel="gallery-'.$gallid.'"><img width="'.$thumb[1].'" height="'.$thumb[2].'" class="attachment-thumbnail" src="'.$thumb[0].'" /></a></dt>';
 					if ($gallery_type == 'lightbox_labeled') {	// Add labels
 						$gall .= '<dd class="wp-caption-text gallery-caption">'.$thumb[5].'</dd>';
 					}

@@ -1,5 +1,9 @@
-jQuery(document).ready(function() {
-    jQuery('.gallery-icon a').fancybox(
-      {'overlayShow': true, 'hideOnContentClick': true, 'overlayOpacity': 0.85}
-    );
-});
+$(document).ready(function() {
+
+/*
+ *  Simple image gallery. Uses default settings
+ */
+
+$('.fancybox').fancybox();
+
+}
