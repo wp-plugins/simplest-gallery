@@ -50,6 +50,7 @@ For more tips and help/support, check out the [Simplest Gallery Plugin Website](
 
 == Changelog ==
 
+* 2.1 2013-07-21	Added folders to the distribution (language support and more stuff) 
 * 2.0 2013-07-21	Replaced included fancybox library to FancyBox 2.1.5 by Janis Skarnelis - http://fancyapps.com/fancybox/ in order to fix IE10 compatibility issues for default gallery style
 * 1.3 2013-04-29	Added API support for external modules: More gallery formats can now be easily added with custom made plugins. 
    			Added support for gallery_type custom field for using different gallery types on different posts/pages
