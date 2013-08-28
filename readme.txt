@@ -50,6 +50,7 @@ For more tips and help/support, check out the [Simplest Gallery Plugin Website](
 
 == Changelog ==
 
+* 2.2 2013-08-28	Bug fix in fbg-init.js. Added setting to force WP to use the correct version of jQuery - fixed compatibility issues with WP 3.6
 * 2.1 2013-07-21	Added folders to the distribution (language support and more stuff) 
 * 2.0 2013-07-21	Replaced included fancybox library to FancyBox 2.1.5 by Janis Skarnelis - http://fancyapps.com/fancybox/ in order to fix IE10 compatibility issues for default gallery style
 * 1.3 2013-04-29	Added API support for external modules: More gallery formats can now be easily added with custom made plugins. 
