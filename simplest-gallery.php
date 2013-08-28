@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 2.1
+Version: 2.2
 Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,6 +14,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
+   + 2.2 2013-08-28	Bug fix: Now forces WP to use the correct version of jQuery - fixed compatibility issues with WP 3.6
    + 2.1 2013-07-21	Added folders to the distribution (language support and more stuff) 
    + 2.0 2013-07-21	Replaced included fancybox library to FancyBox 2.1.5 by Janis Skarnelis - http://fancyapps.com/fancybox/ in order to fix IE10 compatibility issues for default gallery style
    + 1.3 2013-04-29	Added API support for external modules: More gallery formats can now be easily added with custom made plugins. 
@@ -29,13 +30,17 @@ $sga_gallery_types = array(
 				'lightbox_labeled'=>'FancyBox WITH labels',
 				// new types will be added soon...
 			);
+$sga_compat_types = array(
+				'specific'=>'Use Gallery Specific jQuery',
+				'trust_wp'=>'Use WP\'s default jQuery',
+			);
 
 $sga_gallery_params = array();
 
 add_filter('the_content', 'sga_contentfilter');
-add_action('wp_head', 'sga_head');
+add_action('wp_head', 'sga_head',1);
 add_action('wp_footer', 'sga_footer');
-add_action('init', 'sga_init');
+//add_action('init', 'sga_init');
 
 if(is_admin()){
 	// load localisation files
@@ -54,48 +59,6 @@ if(is_admin()){
 // Plugin functions
 
 function sga_init() {
-	global $sga_gallery_types,$sga_options,$sga_gallery_params;
-    
-	$urlpath = WP_PLUGIN_URL . '/' . basename(dirname(__FILE__));
-
-	//sga_get_options();
-	//$gallery_type = $sga_options['sga_gallery_type'];
-
-	foreach ($sga_gallery_types as $gallery_type=>$name) {
-			
-		switch ($gallery_type) {
-		case 'lightbox':
-		case 'lightbox_labeled':
-		case '':
-			wp_enqueue_script('jquery', $urlpath . '/lib/jquery-1.10.1.min.js', false, '1.10.1');
-			wp_enqueue_script('jquery.mousewheel', $urlpath . '/lib/jquery.mousewheel-3.0.6.pack.js', array('jquery'), '3.0.6');
-			wp_enqueue_script('fancybox', $urlpath . '/source/jquery.fancybox.js', array('jquery'), '2.1.5', true);
-			wp_enqueue_script('fancybox-init', $urlpath . '/fbg-init.js', array('fancybox'), '2.1.5', true);
-			wp_enqueue_style('fancybox', $urlpath . '/source/jquery.fancybox.css');
-			wp_enqueue_style('fancybox-override', $urlpath . '/fbg-override.css');
-		break;
-		default:
-			// Include Scripts
-			if ($arr = $sga_gallery_params[$gallery_type]['scripts']) {
-				if (is_array($arr) && count($arr)) {
-					foreach ($arr as $k=>$v) {
-						if (is_array($v)) {
-							wp_enqueue_script($k, $v[0], $v[1], $v[2]);
-						}
-					}
-				}
-			}
-
-			// Include CSSs		
-			if ($arr = $sga_gallery_params[$gallery_type]['css']) {
-				if (is_array($arr) && count($arr)) {
-					foreach ($arr as $k=>$v) {
-						wp_enqueue_style($k, $v);
-					}
-				}
-			}
-		} // Switch
-	} // Foreach
 }
 
 function sga_admin_menu() {
@@ -109,6 +72,7 @@ function sga_admin_init() {
 		
         add_settings_section('sga_main',__('Main Settings','simplest-gallery'),'sga_section_text','simplest-gallery');	
 	add_settings_field('sga_settings', __('Gallery format','simplest-gallery'), 'sga_settings_html', 'simplest-gallery', 'sga_main');	
+	add_settings_field('sga_settings_compat', __('Compatibility with jQuery','simplest-gallery'), 'sga_settings_compat_html', 'simplest-gallery', 'sga_main');	
 }
 
 function sga_settings_page() {
@@ -143,15 +107,34 @@ function sga_settings_html() {
 <select id="sga_gallery_type" name="sga_options[sga_gallery_type]">
 <?php
 	foreach ($sga_gallery_types as $key=>$val) {
-		echo '<option value="'.$key.'" '.(($typedef==$key)?'selected="selected"':'').'>'.$val.'</option>'."\n";
+		echo '<option value="'.$key.'" '.(($typedef==$key)?'selected="selected"':'').'>'.__($val).'</option>'."\n";
 	}
 ?>
 </select>
 <?php
 }
 
+function sga_settings_compat_html() {
+	global $sga_compat_types,$sga_options;
+	
+	sga_get_options();
+	
+	$typedef = $sga_options['sga_gallery_compat'];
+	if (!$typedef) $typedef='specific';
+	
+?>
+<select id="sga_gallery_compat" name="sga_options[sga_gallery_compat]">
+<?php
+	foreach ($sga_compat_types as $key=>$val) {
+		echo '<option value="'.$key.'" '.(($typedef==$key)?'selected="selected"':'').'>'.__($val).'</option>'."\n";
+	}
+?>
+</select><div style="width:500px; display: block;"><p>This setting is used in case of jQuery conflicts between the theme you are using and specific galleries.</p><p>"<em>Use Gallery Specific jQuery</em>" is the safest method for displaying galleries correctly. You should leave it as it is unless your site stops working. In that case you may choose "<em>Use WP's default jQuery</em>" but the specific gallery type might stop working.</p></div>
+<?php
+}
+
 function sga_options_validate($input) {
-	global $sga_gallery_types;
+	global $sga_gallery_types,$sga_compat_types;
 	
 	//print_r($input); //exit;
 	
@@ -161,6 +144,11 @@ function sga_options_validate($input) {
 		//echo "Not exists";
 	}
 	
+	if ($sga_compat_types[$input['sga_gallery_compat']]) {
+		$newinput['sga_gallery_compat'] = $input['sga_gallery_compat'];
+	} else {
+		//echo "Not exists";
+	}
 	//print_r($newinput,true); //exit;
 	return $newinput;
 }
@@ -290,11 +278,57 @@ function sga_strrpos(  $haystack, $needle, $offset = 0  ) {
 function sga_head() {
 	global $sga_gallery_types,$sga_options,$sga_gallery_params;
     
+	$urlpath = WP_PLUGIN_URL . '/' . basename(dirname(__FILE__));
 ?>
 <!-- Added by Simplest Gallery Plugin BEGIN -->
 <?php
+
 	sga_get_options('CHECK');
 	$gallery_type = $sga_options['sga_gallery_type'];
+	
+	echo "<!-- galltype: $gallery_type ".print_r($sga_gallery_types,true).print_r($sga_gallery_params,true)." -->\n";
+
+	switch ($gallery_type) {
+	case 'lightbox':
+	case 'lightbox_labeled':
+	case '':
+		if ($sga_options['sga_gallery_compat']!='trust_wp') {
+			wp_deregister_script('jquery'); // Force WP to use my desired jQuery version
+			wp_register_script('jquery', ("http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"), false, '1.10.1');
+		} else {
+			wp_enqueue_script('jquery', $urlpath . '/lib/jquery-1.10.1.min.js', false, '1.10.1');
+		}
+		wp_enqueue_script('jquery.mousewheel', $urlpath . '/lib/jquery.mousewheel-3.0.6.pack.js', array('jquery'), '3.0.6');
+		wp_enqueue_script('fancybox', $urlpath . '/source/jquery.fancybox.js', array('jquery'), '2.1.5');
+		wp_enqueue_script('fancybox-init', $urlpath . '/fbg-init.js', array('fancybox'), '2.1.5', true);
+		wp_enqueue_style('fancybox', $urlpath . '/source/jquery.fancybox.css');
+		wp_enqueue_style('fancybox-override', $urlpath . '/fbg-override.css');
+	break;
+	default:
+		// Include Scripts
+		if ($arr = $sga_gallery_params[$gallery_type]['scripts']) {
+			if (is_array($arr) && count($arr)) {
+				foreach ($arr as $k=>$v) {
+					if (is_array($v)) {
+						wp_enqueue_script($k, $v[0], $v[1], $v[2]);
+					} else {
+						echo "<!-- error: script item is not an array -->\n"; 
+					}
+				}
+			} else {
+				echo "<!-- error: scripts is not an array -->\n"; 
+			}
+		}
+
+		// Include CSSs		
+		if ($arr = $sga_gallery_params[$gallery_type]['css']) {
+			if (is_array($arr) && count($arr)) {
+				foreach ($arr as $k=>$v) {
+					wp_enqueue_style($k, $v);
+				}
+			}
+		}
+	} // Switch
 			
 	if ($hfunct = $sga_gallery_params[$gallery_type]['header_function']) {
 		if (function_exists($hfunct)) {
