@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 2.2
+Version: 2.3
 Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,7 +14,8 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
-   + 2.2 2013-08-28	Bug fix: Now forces WP to use the correct version of jQuery - fixed compatibility issues with WP 3.6
+   + 2.3 2013-08-28	Optimized code for speed. Bug fix: Plugin did not work for WP gallery setting different from Link to: Attachment Page - now fixed.
+   + 2.2 2013-08-28	Bug fix in fbg-init.js. Added setting to force WP to use the correct version of jQuery - fixed compatibility issues with WP 3.6
    + 2.1 2013-07-21	Added folders to the distribution (language support and more stuff) 
    + 2.0 2013-07-21	Replaced included fancybox library to FancyBox 2.1.5 by Janis Skarnelis - http://fancyapps.com/fancybox/ in order to fix IE10 compatibility issues for default gallery style
    + 1.3 2013-04-29	Added API support for external modules: More gallery formats can now be easily added with custom made plugins. 
@@ -25,6 +26,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 */
 
 // CONFIG
+$sga_version = '2.3';
 $sga_gallery_types = array(
 				'lightbox'=>'FancyBox without labels',
 				'lightbox_labeled'=>'FancyBox WITH labels',
@@ -40,7 +42,6 @@ $sga_gallery_params = array();
 add_filter('the_content', 'sga_contentfilter');
 add_action('wp_head', 'sga_head',1);
 add_action('wp_footer', 'sga_footer');
-//add_action('init', 'sga_init');
 
 if(is_admin()){
 	// load localisation files
@@ -48,13 +49,21 @@ if(is_admin()){
 
 	add_action('admin_menu', 'sga_admin_menu');
 	add_action('admin_init', 'sga_admin_init');	
+
+	// Add settings link on plugin page
+	function sga_settings_link($links) { 
+	  $settings_link = '<a href="options-general.php?page=SimplestGallery">'.__('Settings').'</a>'; 
+	  array_unshift($links, $settings_link); 
+	  return $links; 
+	}
+
+	$plugin = plugin_basename(__FILE__); 
+	add_filter("plugin_action_links_$plugin", 'sga_settings_link' );
+
 }
 
 //add_action("template_redirect", "sga_outside_init"); // UNUSED
-
-// Disable the hated admin bar
-//add_filter( 'show_admin_bar', '__return_false' );
-
+//add_action('init', 'sga_init'); // UNUSED
 
 // Plugin functions
 
@@ -93,7 +102,8 @@ function sga_settings_page() {
 }
 
 function sga_section_text() {
-	echo '<p>'.__('Choose how the galleries will look like on your website','simplest-gallery').'.</p>';
+	echo '<div style="width:200px;float:right;background:#ffffaa;padding:20px;">'.__('Need help? Check out the ').'<a href="http://www.simplestgallery.com/support/" target="_blank">'.__('Simplest Gallery Website').'</a></div>';
+	echo '<p>'.__('Determine how the galleries will look like on your website','simplest-gallery').'.</p>';
 }
 
 function sga_settings_html() {
@@ -120,7 +130,7 @@ function sga_settings_compat_html() {
 	sga_get_options();
 	
 	$typedef = $sga_options['sga_gallery_compat'];
-	if (!$typedef) $typedef='specific';
+	if (!$typedef) $typedef='trust_wp';
 	
 ?>
 <select id="sga_gallery_compat" name="sga_options[sga_gallery_compat]">
@@ -129,7 +139,9 @@ function sga_settings_compat_html() {
 		echo '<option value="'.$key.'" '.(($typedef==$key)?'selected="selected"':'').'>'.__($val).'</option>'."\n";
 	}
 ?>
-</select><div style="width:500px; display: block;"><p>This setting is used in case of jQuery conflicts between the theme you are using and specific galleries.</p><p>"<em>Use Gallery Specific jQuery</em>" is the safest method for displaying galleries correctly. You should leave it as it is unless your site stops working. In that case you may choose "<em>Use WP's default jQuery</em>" but the specific gallery type might stop working.</p></div>
+</select><div style="width:500px; display: block;"><p>This setting is used in case of jQuery conflicts between the theme you are using and specific gallery types.</p>
+<p>"<em>Use WP's default jQuery</em>" is the safest method for your website.</p>
+<p>If galleries don't display correctly you can try using "<em>Use Gallery Specific jQuery</em>" which forces WP to use the required jQuery version for the galleries. In that case, please check your site still displays correctly: if not just revert to the default setting or upgrade your WP theme.</p></div>
 <?php
 }
 
@@ -155,28 +167,30 @@ function sga_options_validate($input) {
 
 function sga_contentfilter($content = '') {
 	global $sga_gallery_types,$post,$sga_options,$sga_gallery_params;
-	
+	$gall = '';
 	$gallid = $post->ID; 
 
 	if (!(strpos($content,'[gallery')===FALSE)) {
-		$res = preg_match('/\[gallery ids="([^"]*)"\]/',$content,$matches);
-		$ids=$matches[1]; // gallery images IDs are here now
+		$res = preg_match('/\[gallery( link="[^"]*")? ids="([^"]*)"\]/',$content,$matches);
+		//echo "Post ID: $gallid - Matches:".print_r($matches,true);exit;
 
-		$images = sga_gallery_images('large');
-		$thumbs = sga_gallery_images('thumbnail');
+		$ids=$matches[2]; // gallery images IDs are here now
+
+		$images = sga_gallery_images('large',$ids);
+		$thumbs = sga_gallery_images('thumbnail',$ids);
 		
 		if (count($images)) {
 		
 			sga_get_options();
 			
 			$gallery_type = $sga_options['sga_gallery_type'];
-			
+
 			switch ($gallery_type) {
 			case 'lightbox':
 			case 'lightbox_labeled':
 			case '':
 		
-				$gall = '
+				$gall .= '
 <style type="text/css">
 				#gallery-1 {
 					margin: auto;
@@ -213,7 +227,7 @@ function sga_contentfilter($content = '') {
 				if ($hfunct = $sga_gallery_params[$gallery_type]['render_function']) {
 					if (function_exists($hfunct)) {
 						if ($res = call_user_func($hfunct,$images,$thumbs)) {
-							$gall = "<!-- Rendered by {$sga_gallery_types[$gallery_type]} BEGIN -->\n";
+							$gall .= "<!-- Rendered by {$sga_gallery_types[$gallery_type]} BEGIN -->\n";
 							$gall .= $res;
 							$gall .= "<!-- Rendered by {$sga_gallery_types[$gallery_type]} END -->\n";
 						}
@@ -222,6 +236,9 @@ function sga_contentfilter($content = '') {
 			} // Closes SWITCH
 
 			$content = str_replace($matches[0],$gall,$content);
+		} else {
+			$gall = 'Gallery is empty';
+			$content = str_replace($matches[0],$gall,$content);
 		}		
 		
 	}
@@ -229,18 +246,11 @@ function sga_contentfilter($content = '') {
 	return $content;
 }
 
-function sga_gallery_images($size = 'large') {
+function sga_gallery_images($size = 'large',$ids) {
 	global $post;
 
 	$galleryimages = array();
 	
-	$text = get_the_content();
-	
-	//echo $text; 
-	//echo "<br>res:$res<br>matches: ".print_r($matches,true); exit;
-	
-	$res = preg_match('/\[gallery ids="([^"]*)"\]/',$text,$matches);
-	$ids=$matches[1];
 	if ($ids) {
 		$arrids = explode(',',$ids);
 		if (is_array($arrids)) {
@@ -276,23 +286,23 @@ function sga_strrpos(  $haystack, $needle, $offset = 0  ) {
 
 
 function sga_head() {
-	global $sga_gallery_types,$sga_options,$sga_gallery_params;
+	global $sga_gallery_types,$sga_options,$sga_gallery_params,$sga_version;
     
 	$urlpath = WP_PLUGIN_URL . '/' . basename(dirname(__FILE__));
 ?>
-<!-- Added by Simplest Gallery Plugin BEGIN -->
+<!-- Added by Simplest Gallery Plugin v. <?=$sga_version?> BEGIN -->
 <?php
 
 	sga_get_options('CHECK');
 	$gallery_type = $sga_options['sga_gallery_type'];
 	
-	echo "<!-- galltype: $gallery_type ".print_r($sga_gallery_types,true).print_r($sga_gallery_params,true)." -->\n";
+	//echo "<!-- galltype: $gallery_type ".print_r($sga_gallery_types,true).print_r($sga_gallery_params,true)." -->\n";
 
 	switch ($gallery_type) {
 	case 'lightbox':
 	case 'lightbox_labeled':
 	case '':
-		if ($sga_options['sga_gallery_compat']!='trust_wp') {
+		if ($sga_options['sga_gallery_compat']=='specific') {
 			wp_deregister_script('jquery'); // Force WP to use my desired jQuery version
 			wp_register_script('jquery', ("http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"), false, '1.10.1');
 		} else {
