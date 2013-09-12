@@ -35,7 +35,10 @@ Ultra-simple:
 2. Create or edit any page or post. Insert a gallery into it by using the Wordpress builtin method ("Add Media" button).
 3. View page and enjoy the gallery!
 
-4. OPTIONAL: if you don't like how your galleries look like, go to WP Admin / Settings / Simplest Gallery and change the format of the gallery. You can add more gallery styles by adding extension plugins.
+4. OPTIONAL: If you are not using the Wordpress default theme and you see the galleries are not working properly, go to WP Admin / Settings / Simplest gallery and change 
+the "Compatibility" setting to "Use Gallery Specific jQuery" to resolve possible jQuery conflicts.
+
+5. OPTIONAL: if you don't like how your galleries look like, go to WP Admin / Settings / Simplest Gallery and change the format of the gallery. You can add more gallery styles by adding extension plugins.
 
 For more tips and help/support, check out the [Simplest Gallery Plugin Website](http://www.simplestgallery.com/ "Simplest Gallery Plugin Website")
 
@@ -45,11 +48,15 @@ For more tips and help/support, check out the [Simplest Gallery Plugin Website](
 
 * [Demo page for FancyBox (default) style](http://www.simplestgallery.com/what-is-simplest-gallery-plugin/ "Demo page for FancyBox (default) style")
 * [Demo page for jQuery Cycle Slideshow style](http://www.simplestgallery.com/add-ons/jquery-cycle-slideshow-gallery-style-plugin/ "Demo page for jQuery Cycle Slideshow style")
-
+* [2-minute Video Tutorial](http://www.simplestgallery.com/support/tutorial-how-to-create-a-perfect-image-gallery/ "2-minute Video Tutorial")
 
 
 == Changelog ==
 
+* 2.4 2013-09-12	Added settings box in page/post edit screen for selecting the desired gallery type and more settings. 
+   			Support for multiple galleries in the same page/post.
+   			Extended the SimplestGallery API to support rendering of more than one gallery per page (gallery_id and post_id parameters)
+   			Auto-setup for fresh WP installs (uses jQuery bundled with Simplest Gallery)
 * 2.3 2013-08-28	Optimized code for speed. Bug fix: Plugin did not work for WP gallery setting different from Link to: Attachment Page - now fixed.
 * 2.2 2013-08-28	Bug fix in fbg-init.js. Added setting to force WP to use the correct version of jQuery - fixed compatibility issues with WP 3.6
 * 2.1 2013-07-21	Added folders to the distribution (language support and more stuff) 
