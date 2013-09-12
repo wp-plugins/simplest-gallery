@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 2.3
+Version: 2.4
 Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,6 +14,10 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
+   + 2.4 2013-09-12	Added settings box in page/post edit screen for selecting the desired gallery type and more settings. 
+   			Support for multiple galleries in the same page/post.
+   			Extended the SimplestGallery API to support rendering of more than one gallery per page (gallery_id and post_id parameters)
+   			Auto-setup for fresh WP installs (uses jQuery bundled with Simplest Gallery)
    + 2.3 2013-08-28	Optimized code for speed. Bug fix: Plugin did not work for WP gallery setting different from Link to: Attachment Page - now fixed.
    + 2.2 2013-08-28	Bug fix in fbg-init.js. Added setting to force WP to use the correct version of jQuery - fixed compatibility issues with WP 3.6
    + 2.1 2013-07-21	Added folders to the distribution (language support and more stuff) 
@@ -60,10 +64,19 @@ if(is_admin()){
 	$plugin = plugin_basename(__FILE__); 
 	add_filter("plugin_action_links_$plugin", 'sga_settings_link' );
 
+	add_action('edit_post', 'sga_meta_box_save');
+	add_action('publish_post', 'sga_meta_box_save');
+	add_action('save_post', 'sga_meta_box_save');
+	add_action('edit_page_form', 'sga_meta_box_save');
 }
+
+register_activation_hook( __FILE__, 'sga_activate' );
 
 //add_action("template_redirect", "sga_outside_init"); // UNUSED
 //add_action('init', 'sga_init'); // UNUSED
+
+// Disable the hated admin bar
+add_filter( 'show_admin_bar', '__return_false' );
 
 // Plugin functions
 
@@ -71,9 +84,18 @@ function sga_init() {
 }
 
 function sga_admin_menu() {
-    if (function_exists('add_options_page')) {
-        add_options_page('SimplestGallery', 'Simplest Gallery', 'administrator', 'SimplestGallery', 'sga_settings_page');
-    }
+	if (function_exists('add_options_page')) {
+		add_options_page('SimplestGallery', 'Simplest Gallery', 'administrator', 'SimplestGallery', 'sga_settings_page');
+	}
+	
+	if( function_exists( 'add_meta_box' )) {
+	    add_meta_box( 'simplest-gallery', 'Simplest Gallery',  'sga_meta_box', 'post', 'advanced', 'high' );
+	    add_meta_box( 'simplest-gallery', 'Simplest Gallery',  'sga_meta_box', 'page', 'advanced', 'high' );
+	   } else {
+	    add_action('dbx_post_advanced', 'sga_meta_box' );
+	    add_action('dbx_page_advanced', 'sga_meta_box' );
+	  }
+	 
 }
 
 function sga_admin_init() {
@@ -102,7 +124,7 @@ function sga_settings_page() {
 }
 
 function sga_section_text() {
-	echo '<div style="width:200px;float:right;background:#ffffaa;padding:20px;">'.__('Need help? Check out the ').'<a href="http://www.simplestgallery.com/support/" target="_blank">'.__('Simplest Gallery Website').'</a></div>';
+	echo '<div style="width:200px;float:right;background:#ffffaa;padding:20px;">'.__('Need help? Check out the ','simplest-gallery').'<a href="http://www.simplestgallery.com/support/" target="_blank">'.__('Simplest Gallery Website','simplest-gallery').'</a></div>';
 	echo '<p>'.__('Determine how the galleries will look like on your website','simplest-gallery').'.</p>';
 }
 
@@ -140,7 +162,7 @@ function sga_settings_compat_html() {
 	}
 ?>
 </select><div style="width:500px; display: block;"><p>This setting is used in case of jQuery conflicts between the theme you are using and specific gallery types.</p>
-<p>"<em>Use WP's default jQuery</em>" is the safest method for your website.</p>
+<p>"<em>Use WP's default jQuery</em>" is the less intrusive method for your website.</p>
 <p>If galleries don't display correctly you can try using "<em>Use Gallery Specific jQuery</em>" which forces WP to use the required jQuery version for the galleries. In that case, please check your site still displays correctly: if not just revert to the default setting or upgrade your WP theme.</p></div>
 <?php
 }
@@ -167,80 +189,86 @@ function sga_options_validate($input) {
 
 function sga_contentfilter($content = '') {
 	global $sga_gallery_types,$post,$sga_options,$sga_gallery_params;
-	$gall = '';
+	$post_id = $post->ID; 
 	$gallid = $post->ID; 
 
 	if (!(strpos($content,'[gallery')===FALSE)) {
-		$res = preg_match('/\[gallery( link="[^"]*")? ids="([^"]*)"\]/',$content,$matches);
-		//echo "Post ID: $gallid - Matches:".print_r($matches,true);exit;
+		$howmany = preg_match_all('/\[gallery( link="[^"]*")? ids="([^"]*)"\]/',$content,$arrmatches);
+		//echo "Post ID: $post_id - res: $res - Matches:".print_r($arrmatches,true);exit;
 
-		$ids=$matches[2]; // gallery images IDs are here now
-
-		$images = sga_gallery_images('large',$ids);
-		$thumbs = sga_gallery_images('thumbnail',$ids);
-		
-		if (count($images)) {
-		
+		if (!($gallery_type=get_post_meta($post_id, 'gallery_type', true))) { // Post/page's specific setting may override site-wide
 			sga_get_options();
-			
 			$gallery_type = $sga_options['sga_gallery_type'];
+		}
+		
+		for ($gallid=0; $gallid<$howmany; $gallid++) {
 
-			switch ($gallery_type) {
-			case 'lightbox':
-			case 'lightbox_labeled':
-			case '':
-		
-				$gall .= '
-<style type="text/css">
-				#gallery-1 {
-					margin: auto;
-				}
-				#gallery-1 .gallery-item {
-					float: left;
-					margin-top: 10px;
-					text-align: center;
-					width: 33%;
-				}
-				#gallery-1 img {
-					border: 2px solid #cfcfcf;
-				}
-				#gallery-1 .gallery-caption {
-					margin-left: 0;
-				}
-</style>
-<div id="gallery-1" class="gallery galleryid-'.$gallid.' gallery-columns-3 gallery-size-thumbnail">';
-		
-				for ($i=0;$i<count($thumbs);$i++) {
-					$thumb = $thumbs[$i];
-					$image = $images[$i];
-					$gall .= '<dl class="gallery-item"><dt class="gallery-icon">
-					<a class="fancybox" href="'.$image[0].'" title="'.$thumb[5].'" rel="gallery-'.$gallid.'"><img width="'.$thumb[1].'" height="'.$thumb[2].'" class="attachment-thumbnail" src="'.$thumb[0].'" /></a></dt>';
-					if ($gallery_type == 'lightbox_labeled') {	// Add labels
-						$gall .= '<dd class="wp-caption-text gallery-caption">'.$thumb[5].'</dd>';
+			$gall = '';	// Reset gallery buffer
+			//$gall = "gallery type: $gallery_type<br/>\n";
+			
+			$ids=$arrmatches[2][$gallid]; // gallery images IDs are here now
+
+			$images = sga_gallery_images('large',$ids);
+			$thumbs = sga_gallery_images('thumbnail',$ids);
+
+			if (count($images)) {
+
+				switch ($gallery_type) {
+				case 'lightbox':
+				case 'lightbox_labeled':
+				case '':
+
+					$gall .= '
+	<style type="text/css">
+					#gallery-'.$gallid.' {
+						margin: auto;
 					}
-					$gall .= '</dl>'."\n\n"; // title="'.print_r($thumb,true).'" 
-				}
+					#gallery-'.$gallid.' .gallery-item {
+						float: left;
+						margin-top: 10px;
+						text-align: center;
+						width: 33%;
+					}
+					#gallery-'.$gallid.' img {
+						border: 2px solid #cfcfcf;
+					}
+					#gallery-'.$gallid.' .gallery-caption {
+						margin-left: 0;
+					}
+	</style>
+	<div id="gallery-'.$gallid.'" class="gallery galleryid-'.$gallid.' gallery-columns-3 gallery-size-thumbnail">';
 
-				$gall .= '</div><br clear="all" />';
-			break;
-			default:
-				if ($hfunct = $sga_gallery_params[$gallery_type]['render_function']) {
-					if (function_exists($hfunct)) {
-						if ($res = call_user_func($hfunct,$images,$thumbs)) {
-							$gall .= "<!-- Rendered by {$sga_gallery_types[$gallery_type]} BEGIN -->\n";
-							$gall .= $res;
-							$gall .= "<!-- Rendered by {$sga_gallery_types[$gallery_type]} END -->\n";
+					for ($i=0;$i<count($thumbs);$i++) {
+						$thumb = $thumbs[$i];
+						$image = $images[$i];
+						$gall .= '<dl class="gallery-item"><dt class="gallery-icon">
+						<a class="fancybox" href="'.$image[0].'" title="'.$thumb[5].'" rel="gallery-'.$gallid.'"><img width="'.$thumb[1].'" height="'.$thumb[2].'" class="attachment-thumbnail" src="'.$thumb[0].'" /></a></dt>';
+						if ($gallery_type == 'lightbox_labeled') {	// Add labels
+							$gall .= '<dd class="wp-caption-text gallery-caption">'.$thumb[5].'</dd>';
+						}
+						$gall .= '</dl>'."\n\n"; // title="'.print_r($thumb,true).'" 
+					}
+
+					$gall .= '</div><br clear="all" />';
+				break;
+				default:
+					if ($hfunct = $sga_gallery_params[$gallery_type]['render_function']) {
+						if (function_exists($hfunct)) {
+							if ($res = call_user_func($hfunct,$images,$thumbs,$post_id /* ,$gallid */ )) { // Coming soon: will pass gallery id for multiple galleries in a post
+								$gall .= "<!-- Rendered by {$sga_gallery_types[$gallery_type]} BEGIN -->\n";
+								$gall .= $res;
+								$gall .= "<!-- Rendered by {$sga_gallery_types[$gallery_type]} END -->\n";
+							}
 						}
 					}
-				}
-			} // Closes SWITCH
+				} // Closes SWITCH
 
-			$content = str_replace($matches[0],$gall,$content);
-		} else {
-			$gall = 'Gallery is empty';
-			$content = str_replace($matches[0],$gall,$content);
-		}		
-		
+				$content = str_replace($arrmatches[0][$gallid],$gall,$content);
+			} else {
+				$gall .= 'Gallery is empty!';
+				$content = str_replace($arrmatches[0][$gallid],$gall,$content);
+			}		
+		} // Foreach loop on galleries
 	}
 
 	return $content;
@@ -407,5 +435,101 @@ function sga_register_gallery_type($gallery_type_id,$gallery_type_name,$render_f
 	return TRUE;
 }
 
+function sga_meta_box() {
+	global $post,$wp_version,$sga_gallery_types;
+	$post_id = $post;
+	if (is_object($post_id)) {
+	    	$post_id = $post_id->ID;
+	}
+
+	$gall_type = stripcslashes(get_post_meta($post_id, 'gallery_type', true));
+	$gall_width = stripcslashes(get_post_meta($post_id, 'gall_width', true));
+	$gall_height = stripcslashes(get_post_meta($post_id, 'gall_height', true));
+		
+	?>		
+		<?php if ((substr($wp_version, 0, 3) < '2.5')) { ?>
+		<div class="dbx-b-ox-wrapper">
+		<fieldset id="sga" class="dbx-box">
+		<div class="dbx-h-andle-wrapper">
+		<h3 class="dbx-handle">Simplest Gallery</h3>
+		</div>
+		<div class="dbx-c-ontent-wrapper">
+		<div class="dbx-content">
+		<?php } ?>
+
+		<div style="width:200px;float:right;background:#ffffaa;padding:20px;">If galleries don't work, then change the compatibility setting <a target="_blank" href="options-general.php?page=SimplestGallery">here</a>. If you need help, <a target="_blank" href="http://www.simplestgallery.com/support/"><?php _e('Click here for Support', 'simplest-gallery') ?></a></div>
+
+		<input value="sga_edit" type="hidden" name="sga_edit" />
+		<table style="margin-bottom:40px">
+		<tr>
+		<th style="text-align:left;" colspan="2">
+		</th>
+		</tr>
+		<tr>
+		<th scope="row" style="text-align:right;"><?php _e('Gallery format','simplest-gallery') ?></th>
+		<td>
+		<select id="sga_gallery_type" name="sga_gallery_type">
+		<?php
+			$chosen = false;
+			foreach ($sga_gallery_types as $key=>$val) {
+				echo '<option value="'.$key.'" '.(($gall_type==$key)?'selected="selected"':'').'>'.__($val).'</option>'."\n";
+				$chosen=$chosen||($gall_type==$key);
+			}
+			echo '<option '.((!$chosen)?'selected="selected"':'').' value="">(default)</option>';
+		?>
+		
+		</select>
+		</td>
+		</tr>
+		
+		
+		<tr>
+		<th scope="row" style="text-align:left;"><?php _e('Gallery size', 'simplest-gallery') ?>:</th>
+		<td>
+		<?php _e('Width', 'simplest-gallery') ?> <input value="<?php echo $gall_width ?>" type="text" name="sga_gall_width" size="4" />
+		<?php _e('Height', 'simplest-gallery') ?> <input value="<?php echo $gall_height ?>" type="text" name="sga_gall_height" size="4" /> (<?php _e('In pixels, a few gallery formats use them. If unsure leave blank', 'simplest-gallery') ?>)
+		</td>
+		</tr>
+		
+		</table>		
+		<input type="hidden" name="sga_meta_nonce" value="<?php echo wp_create_nonce('sga_meta_nonce') ?>" />
+
+		<?php if ((substr($wp_version, 0, 3) < '2.5')) { ?>
+		</div>
+		</fieldset>
+		</div>
+		<?php } ?>
+		<?php  
+}
+
+function sga_meta_box_save($id) {
+	$sga_edit = $_POST["sga_edit"];
+	$nonce = $_POST['sga_meta_nonce'];
+	if (isset($sga_edit) && !empty($sga_edit) && wp_verify_nonce($nonce, 'sga_meta_nonce')) {
+		foreach (array('sga_gallery_type','sga_gall_width','sga_gall_height') as $k) {
+			$setting = str_replace('sga_','',$k);
+			$v = $_POST[$k];
+			delete_post_meta($id, $setting);
+			if ($v) {
+				add_post_meta($id, $setting, $v);
+			}
+		}
+
+	}
+
+}
+
+function sga_activate() {
+	global $sga_options;
+	
+    // Activation code here...
+	sga_get_options();
+	
+	if (!is_array($sga_options) && !(stripos(get_template_directory(),'twenty')===FALSE)) {
+		// On fresh installas and plain vanilla WP just use our jQuery
+		add_option('sga_options',array('sga_gallery_compat'=>'specific'));
+	}
+
+}
 
 ?>
