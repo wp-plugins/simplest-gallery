@@ -53,6 +53,7 @@ For more tips and help/support, check out the [Simplest Gallery Plugin Website](
 
 == Changelog ==
 
+* 2.5 2013-09-18	Improved support for addon styles (added $gallery_id parameter for rendering function API syntax). Support & fix for jQuery 1.10.2 (Thanks Ian Byrne)
 * 2.4 2013-09-12	Added settings box in page/post edit screen for selecting the desired gallery type and more settings. 
    			Support for multiple galleries in the same page/post.
    			Extended the SimplestGallery API to support rendering of more than one gallery per page (gallery_id and post_id parameters)
