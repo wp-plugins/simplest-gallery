@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 2.4
+Version: 2.5
 Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,6 +14,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
+   + 2.5 2013-09-18	Improved support for addon styles (added $gallery_id parameter for rendering function API syntax). Support & fix for jQuery 1.10.2 (Thanks Ian Byrne)
    + 2.4 2013-09-12	Added settings box in page/post edit screen for selecting the desired gallery type and more settings. 
    			Support for multiple galleries in the same page/post.
    			Extended the SimplestGallery API to support rendering of more than one gallery per page (gallery_id and post_id parameters)
@@ -30,7 +31,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 */
 
 // CONFIG
-$sga_version = '2.3';
+$sga_version = '2.5';
 $sga_gallery_types = array(
 				'lightbox'=>'FancyBox without labels',
 				'lightbox_labeled'=>'FancyBox WITH labels',
@@ -210,6 +211,8 @@ function sga_contentfilter($content = '') {
 
 			$images = sga_gallery_images('large',$ids);
 			$thumbs = sga_gallery_images('thumbnail',$ids);
+			
+			if (!is_array($sga_gallery_params[$gallery_type])) $gallery_type='lightbox';
 
 			if (count($images)) {
 
@@ -254,7 +257,7 @@ function sga_contentfilter($content = '') {
 				default:
 					if ($hfunct = $sga_gallery_params[$gallery_type]['render_function']) {
 						if (function_exists($hfunct)) {
-							if ($res = call_user_func($hfunct,$images,$thumbs,$post_id /* ,$gallid */ )) { // Coming soon: will pass gallery id for multiple galleries in a post
+							if ($res = call_user_func($hfunct,$images,$thumbs,$post_id,$gallid)) { // If WP triggers an error here, you have an outdated addon plugin. A new param has been added in Simplest Gallery 2.5
 								$gall .= "<!-- Rendered by {$sga_gallery_types[$gallery_type]} BEGIN -->\n";
 								$gall .= $res;
 								$gall .= "<!-- Rendered by {$sga_gallery_types[$gallery_type]} END -->\n";
@@ -332,9 +335,9 @@ function sga_head() {
 	case '':
 		if ($sga_options['sga_gallery_compat']=='specific') {
 			wp_deregister_script('jquery'); // Force WP to use my desired jQuery version
-			wp_register_script('jquery', ("http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"), false, '1.10.1');
+			wp_register_script('jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js', false, '1.10.2');
 		} else {
-			wp_enqueue_script('jquery', $urlpath . '/lib/jquery-1.10.1.min.js', false, '1.10.1');
+			wp_enqueue_script('jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js', false, '1.10.2');
 		}
 		wp_enqueue_script('jquery.mousewheel', $urlpath . '/lib/jquery.mousewheel-3.0.6.pack.js', array('jquery'), '3.0.6');
 		wp_enqueue_script('fancybox', $urlpath . '/source/jquery.fancybox.js', array('jquery'), '2.1.5');
@@ -348,7 +351,16 @@ function sga_head() {
 			if (is_array($arr) && count($arr)) {
 				foreach ($arr as $k=>$v) {
 					if (is_array($v)) {
-						wp_enqueue_script($k, $v[0], $v[1], $v[2]);
+						if ($k=='jquery') {	
+							if ($sga_options['sga_gallery_compat']=='specific') {
+								wp_deregister_script('jquery'); // Force WP to use my desired jQuery version
+								wp_register_script('jquery', $v[0], $v[1], $v[2]);
+							} else {
+								wp_enqueue_script($k, $v[0], $v[1], $v[2]);
+							}
+						} else {			
+							wp_enqueue_script($k, $v[0], $v[1], $v[2]);
+						}
 					} else {
 						echo "<!-- error: script item is not an array -->\n"; 
 					}
@@ -525,8 +537,8 @@ function sga_activate() {
     // Activation code here...
 	sga_get_options();
 	
-	if (!is_array($sga_options) && !(stripos(get_template_directory(),'twenty')===FALSE)) {
-		// On fresh installas and plain vanilla WP just use our jQuery
+	if (!is_array($sga_options)) {
+		// On fresh installs use our Gallery-specific jQuery
 		add_option('sga_options',array('sga_gallery_compat'=>'specific'));
 	}
 
