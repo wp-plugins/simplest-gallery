@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 2.5
+Version: 2.6
 Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,6 +14,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
+   + 2.6 2013-10-15	Improved support towards earlier versions of jQuery via the migration jQuery plugin
    + 2.5 2013-09-18	Improved support for addon styles (added $gallery_id parameter for rendering function API syntax). Support & fix for jQuery 1.10.2 (Thanks Ian Byrne)
    + 2.4 2013-09-12	Added settings box in page/post edit screen for selecting the desired gallery type and more settings. 
    			Support for multiple galleries in the same page/post.
@@ -31,7 +32,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 */
 
 // CONFIG
-$sga_version = '2.5';
+$sga_version = '2.6';
 $sga_gallery_types = array(
 				'lightbox'=>'FancyBox without labels',
 				'lightbox_labeled'=>'FancyBox WITH labels',
@@ -339,6 +340,7 @@ function sga_head() {
 		} else {
 			wp_enqueue_script('jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js', false, '1.10.2');
 		}
+		wp_enqueue_script('jquery.migrate', 'http://code.jquery.com/jquery-migrate-1.2.1.min.js', array('jquery'), '1.2.1'); // Helps migrating from earlier versions of jQuery
 		wp_enqueue_script('jquery.mousewheel', $urlpath . '/lib/jquery.mousewheel-3.0.6.pack.js', array('jquery'), '3.0.6');
 		wp_enqueue_script('fancybox', $urlpath . '/source/jquery.fancybox.js', array('jquery'), '2.1.5');
 		wp_enqueue_script('fancybox-init', $urlpath . '/fbg-init.js', array('fancybox'), '2.1.5', true);
@@ -358,6 +360,7 @@ function sga_head() {
 							} else {
 								wp_enqueue_script($k, $v[0], $v[1], $v[2]);
 							}
+							wp_enqueue_script('jquery.migrate', 'http://code.jquery.com/jquery-migrate-1.2.1.min.js', array('jquery'), '1.2.1'); // Helps migrating from earlier versions of jQuery
 						} else {			
 							wp_enqueue_script($k, $v[0], $v[1], $v[2]);
 						}
