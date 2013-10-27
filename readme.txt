@@ -1,9 +1,9 @@
 === Simplest Gallery Plugin ===
 
 Contributors: cleoni
-Tags: gallery, simple, fancybox, jquery, best gallery plugin
+Tags: gallery,simple,image,images,photo,photos,picture,pictures,fancybox,jquery,best gallery plugin,slideshow,photo-albums,best-gallery-plugin
 Requires at least: 3.5.0
-Tested up to: 3.6.1
+Tested up to: 3.7
 Stable tag: trunk
 License: MIT License
 License URI: http://en.wikipedia.org/wiki/MIT_License
@@ -44,7 +44,12 @@ For more tips and help/support, check out the [Simplest Gallery Plugin Website](
 
 
 
-== See it in action ==
+== Screenshots ==
+
+1. Thumbnail Gallery - allowed multiple in the same page and with different columns
+2. View of single image when clicked
+
+== Demo ==
 
 * [Demo page for FancyBox (default) style](http://www.simplestgallery.com/what-is-simplest-gallery-plugin/ "Demo page for FancyBox (default) style")
 * [Demo page for ImageFlow style](http://www.simplestgallery.com/add-ons/imageflow-gallery-style-plugin/ "Demo page for ImageFlow style")
@@ -57,6 +62,7 @@ For more tips and help/support, check out the [Simplest Gallery Plugin Website](
 
 == Changelog ==
 
+* 2.7 2013-10-27	Fixed and tested for WP 3.7 - Added support for user-set columns - Fixed notices with WP_DEBUG set
 * 2.6 2013-10-15	Improved support towards earlier versions of jQuery via the migration jQuery plugin
 * 2.5 2013-09-18	Improved support for addon styles (added $gallery_id parameter for rendering function API syntax). Support & fix for jQuery 1.10.2 (Thanks Ian Byrne)
 * 2.4 2013-09-12	Added settings box in page/post edit screen for selecting the desired gallery type and more settings. 
