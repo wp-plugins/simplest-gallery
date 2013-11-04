@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 2.6
+Version: 2.8
 Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,6 +14,8 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
+   + 2.8 2013-11-04	Fix for language support - Fix for admin bar disappearence problem (Thanks Mike Hegy)
+   + 2.7 2013-10-27	Fixed and tested for WP 3.7 - Added support for user-set columns - Fixed notices with WP_DEBUG set
    + 2.6 2013-10-15	Improved support towards earlier versions of jQuery via the migration jQuery plugin
    + 2.5 2013-09-18	Improved support for addon styles (added $gallery_id parameter for rendering function API syntax). Support & fix for jQuery 1.10.2 (Thanks Ian Byrne)
    + 2.4 2013-09-12	Added settings box in page/post edit screen for selecting the desired gallery type and more settings. 
@@ -51,7 +53,7 @@ add_action('wp_footer', 'sga_footer');
 
 if(is_admin()){
 	// load localisation files
-	load_plugin_textdomain('simplest-gallery','wp-content/plugins/simplest-gallery/lang');
+	load_plugin_textdomain('simplest-gallery',FALSE,dirname( plugin_basename( __FILE__ ) ) . '/lang/');
 
 	add_action('admin_menu', 'sga_admin_menu');
 	add_action('admin_init', 'sga_admin_init');	
@@ -63,7 +65,7 @@ if(is_admin()){
 	  return $links; 
 	}
 
-	$plugin = plugin_basename(__FILE__); 
+	$plugin = plugin_basename(__FILE__);
 	add_filter("plugin_action_links_$plugin", 'sga_settings_link' );
 
 	add_action('edit_post', 'sga_meta_box_save');
@@ -77,8 +79,8 @@ register_activation_hook( __FILE__, 'sga_activate' );
 //add_action("template_redirect", "sga_outside_init"); // UNUSED
 //add_action('init', 'sga_init'); // UNUSED
 
-// Disable the hated admin bar
-add_filter( 'show_admin_bar', '__return_false' );
+// Uncomment the following to disable the admin bar
+//add_filter( 'show_admin_bar', '__return_false' );
 
 // Plugin functions
 
@@ -135,7 +137,7 @@ function sga_settings_html() {
 	
 	sga_get_options();
 	
-	$typedef = $sga_options['sga_gallery_type'];
+	$typedef = isset($sga_options['sga_gallery_type'])?$sga_options['sga_gallery_type']:NULL;
 	
 ?>
 <select id="sga_gallery_type" name="sga_options[sga_gallery_type]">
@@ -195,12 +197,12 @@ function sga_contentfilter($content = '') {
 	$gallid = $post->ID; 
 
 	if (!(strpos($content,'[gallery')===FALSE)) {
-		$howmany = preg_match_all('/\[gallery( link="[^"]*")? ids="([^"]*)"\]/',$content,$arrmatches);
+		$howmany = preg_match_all('/\[gallery(\s+columns="[^"]*")?(\s+link="[^"]*")?\s+ids="([^"]*)"\]/',$content,$arrmatches);
 		//echo "Post ID: $post_id - res: $res - Matches:".print_r($arrmatches,true);exit;
 
 		if (!($gallery_type=get_post_meta($post_id, 'gallery_type', true))) { // Post/page's specific setting may override site-wide
 			sga_get_options();
-			$gallery_type = $sga_options['sga_gallery_type'];
+			$gallery_type = isset($sga_options['sga_gallery_type'])?$sga_options['sga_gallery_type']:NULL;
 		}
 		
 		for ($gallid=0; $gallid<$howmany; $gallid++) {
@@ -208,7 +210,11 @@ function sga_contentfilter($content = '') {
 			$gall = '';	// Reset gallery buffer
 			//$gall = "gallery type: $gallery_type<br/>\n";
 			
-			$ids=$arrmatches[2][$gallid]; // gallery images IDs are here now
+			$res = preg_match('/\s*columns="([0-9]+)"/',$arrmatches[1][$gallid],$arrcolmatch);
+			$columns = 3;
+			if (isset($arrcolmatch[1]) && intval($arrcolmatch[1])) $columns = intval($arrcolmatch[1]);
+			
+			$ids=$arrmatches[3][$gallid]; // gallery images IDs are here now
 
 			$images = sga_gallery_images('large',$ids);
 			$thumbs = sga_gallery_images('thumbnail',$ids);
@@ -221,7 +227,6 @@ function sga_contentfilter($content = '') {
 				case 'lightbox':
 				case 'lightbox_labeled':
 				case '':
-
 					$gall .= '
 	<style type="text/css">
 					#gallery-'.$gallid.' {
@@ -231,7 +236,7 @@ function sga_contentfilter($content = '') {
 						float: left;
 						margin-top: 10px;
 						text-align: center;
-						width: 33%;
+						width: '.intval(98/$columns).'%;
 					}
 					#gallery-'.$gallid.' img {
 						border: 2px solid #cfcfcf;
@@ -239,8 +244,10 @@ function sga_contentfilter($content = '') {
 					#gallery-'.$gallid.' .gallery-caption {
 						margin-left: 0;
 					}
-	</style>
-	<div id="gallery-'.$gallid.'" class="gallery galleryid-'.$gallid.' gallery-columns-3 gallery-size-thumbnail">';
+	</style>';
+	
+	$gall .= '
+	<div id="gallery-'.$gallid.'" class="gallery galleryid-'.$gallid.' gallery-size-thumbnail">';
 
 					for ($i=0;$i<count($thumbs);$i++) {
 						$thumb = $thumbs[$i];
@@ -256,7 +263,7 @@ function sga_contentfilter($content = '') {
 					$gall .= '</div><br clear="all" />';
 				break;
 				default:
-					if ($hfunct = $sga_gallery_params[$gallery_type]['render_function']) {
+					if (isset($sga_gallery_params[$gallery_type]) && ($hfunct = $sga_gallery_params[$gallery_type]['render_function'])) {
 						if (function_exists($hfunct)) {
 							if ($res = call_user_func($hfunct,$images,$thumbs,$post_id,$gallid)) { // If WP triggers an error here, you have an outdated addon plugin. A new param has been added in Simplest Gallery 2.5
 								$gall .= "<!-- Rendered by {$sga_gallery_types[$gallery_type]} BEGIN -->\n";
@@ -326,7 +333,7 @@ function sga_head() {
 <?php
 
 	sga_get_options('CHECK');
-	$gallery_type = $sga_options['sga_gallery_type'];
+	$gallery_type = isset($sga_options['sga_gallery_type'])?$sga_options['sga_gallery_type']:NULL;
 	
 	//echo "<!-- galltype: $gallery_type ".print_r($sga_gallery_types,true).print_r($sga_gallery_params,true)." -->\n";
 
@@ -336,9 +343,9 @@ function sga_head() {
 	case '':
 		if ($sga_options['sga_gallery_compat']=='specific') {
 			wp_deregister_script('jquery'); // Force WP to use my desired jQuery version
-			wp_register_script('jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js', false, '1.10.2');
+			wp_register_script('jquery', 'http://code.jquery.com/jquery-1.10.2.min.js', false, '1.10.2');
 		} else {
-			wp_enqueue_script('jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js', false, '1.10.2');
+			wp_enqueue_script('jquery', 'http://code.jquery.com/jquery-1.10.2.min.js', false, '1.10.2');
 		}
 		wp_enqueue_script('jquery.migrate', 'http://code.jquery.com/jquery-migrate-1.2.1.min.js', array('jquery'), '1.2.1'); // Helps migrating from earlier versions of jQuery
 		wp_enqueue_script('jquery.mousewheel', $urlpath . '/lib/jquery.mousewheel-3.0.6.pack.js', array('jquery'), '3.0.6');
@@ -349,7 +356,8 @@ function sga_head() {
 	break;
 	default:
 		// Include Scripts
-		if ($arr = $sga_gallery_params[$gallery_type]['scripts']) {
+		$arr = NULL;
+		if (isset($sga_gallery_params[$gallery_type]) && ($arr = $sga_gallery_params[$gallery_type]['scripts'])) {
 			if (is_array($arr) && count($arr)) {
 				foreach ($arr as $k=>$v) {
 					if (is_array($v)) {
@@ -383,7 +391,7 @@ function sga_head() {
 		}
 	} // Switch
 			
-	if ($hfunct = $sga_gallery_params[$gallery_type]['header_function']) {
+	if (isset($sga_gallery_params[$gallery_type]) && ($hfunct = $sga_gallery_params[$gallery_type]['header_function'])) {
 		if (function_exists($hfunct)) {
 			if ($res = call_user_func($hfunct)) {
 				echo "<!-- Added by {$sga_gallery_types[$gallery_type]} BEGIN -->\n";
@@ -399,11 +407,7 @@ function sga_head() {
 }
 
 function sga_footer() {
-
-?>
-<!-- Added by Simplest Gallery Plugin -->
-<?php
-
+	// Empty so far - might be used in future versions
 }
 
 // Optimized code: gets plugin options only when called the first time
@@ -518,8 +522,8 @@ function sga_meta_box() {
 }
 
 function sga_meta_box_save($id) {
-	$sga_edit = $_POST["sga_edit"];
-	$nonce = $_POST['sga_meta_nonce'];
+	$sga_edit = isset($_POST["sga_edit"])?$_POST["sga_edit"]:NULL;
+	$nonce = isset($_POST['sga_meta_nonce'])?$_POST['sga_meta_nonce']:NULL;
 	if (isset($sga_edit) && !empty($sga_edit) && wp_verify_nonce($nonce, 'sga_meta_nonce')) {
 		foreach (array('sga_gallery_type','sga_gall_width','sga_gall_height') as $k) {
 			$setting = str_replace('sga_','',$k);
