@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 2.7
+Version: 2.8
 Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,6 +14,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
+   + 2.8 2013-11-04	Fix for language support - Fix for admin bar disappearence problem (Thanks Mike Hegy)
    + 2.7 2013-10-27	Fixed and tested for WP 3.7 - Added support for user-set columns - Fixed notices with WP_DEBUG set
    + 2.6 2013-10-15	Improved support towards earlier versions of jQuery via the migration jQuery plugin
    + 2.5 2013-09-18	Improved support for addon styles (added $gallery_id parameter for rendering function API syntax). Support & fix for jQuery 1.10.2 (Thanks Ian Byrne)
@@ -52,7 +53,7 @@ add_action('wp_footer', 'sga_footer');
 
 if(is_admin()){
 	// load localisation files
-	load_plugin_textdomain('simplest-gallery',FALSE,basename(dirname(__FILE__)).'/lang');
+	load_plugin_textdomain('simplest-gallery',FALSE,dirname( plugin_basename( __FILE__ ) ) . '/lang/');
 
 	add_action('admin_menu', 'sga_admin_menu');
 	add_action('admin_init', 'sga_admin_init');	
@@ -78,8 +79,8 @@ register_activation_hook( __FILE__, 'sga_activate' );
 //add_action("template_redirect", "sga_outside_init"); // UNUSED
 //add_action('init', 'sga_init'); // UNUSED
 
-// Disable the hated admin bar
-add_filter( 'show_admin_bar', '__return_false' );
+// Uncomment the following to disable the admin bar
+//add_filter( 'show_admin_bar', '__return_false' );
 
 // Plugin functions
 
