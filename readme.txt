@@ -65,6 +65,7 @@ Includes the free Lightbox FancyBox 1.3.4 for the default, builtin gallery style
 
 == Changelog ==
 
+* 3.0 2014-04-05	Small fix for Admin Bar display
 * 2.9 2014-04-05	Replaced Fancybox library with to FancyBox 1.3.4 (http://fancybox.net/) which is Licensed under both MIT and GPL licenses
 * 2.8 2013-11-04	Fix for language support - Fix for admin bar disappearence problem (Thanks Mike Hegy)
 * 2.7 2013-10-27	Fixed and tested for WP 3.7 - Added support for user-set columns - Fixed notices with WP_DEBUG set

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 2.9
+Version: 3.0
 Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,6 +14,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
+   + 3.0 2014-04-05	Small fix for Admin Bar display
    + 2.9 2014-04-05	Replaced Fancybox library with to FancyBox 1.3.4 (http://fancybox.net/) which is Licensed under both MIT and GPL licenses
    + 2.8 2013-11-04	Fix for language support - Fix for admin bar disappearence problem (Thanks Mike Hegy)
    + 2.7 2013-10-27	Fixed and tested for WP 3.7 - Added support for user-set columns - Fixed notices with WP_DEBUG set
@@ -35,7 +36,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 */
 
 // CONFIG
-$sga_version = '2.9';
+$sga_version = '3.0';
 $sga_gallery_types = array(
 				'lightbox'=>'FancyBox without labels',
 				'lightbox_labeled'=>'FancyBox WITH labels',
@@ -81,7 +82,7 @@ register_activation_hook( __FILE__, 'sga_activate' );
 //add_action('init', 'sga_init'); // UNUSED
 
 // Uncomment the following to disable the admin bar
-add_filter( 'show_admin_bar', '__return_false' );
+//add_filter( 'show_admin_bar', '__return_false' );
 
 // Plugin functions
 
