@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 2.8
+Version: 2.9
 Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,6 +14,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
+   + 2.9 2014-04-05	Replaced Fancybox library with to FancyBox 1.3.4 (http://fancybox.net/) which is Licensed under both MIT and GPL licenses
    + 2.8 2013-11-04	Fix for language support - Fix for admin bar disappearence problem (Thanks Mike Hegy)
    + 2.7 2013-10-27	Fixed and tested for WP 3.7 - Added support for user-set columns - Fixed notices with WP_DEBUG set
    + 2.6 2013-10-15	Improved support towards earlier versions of jQuery via the migration jQuery plugin
@@ -34,7 +35,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 */
 
 // CONFIG
-$sga_version = '2.6';
+$sga_version = '2.9';
 $sga_gallery_types = array(
 				'lightbox'=>'FancyBox without labels',
 				'lightbox_labeled'=>'FancyBox WITH labels',
@@ -80,7 +81,7 @@ register_activation_hook( __FILE__, 'sga_activate' );
 //add_action('init', 'sga_init'); // UNUSED
 
 // Uncomment the following to disable the admin bar
-//add_filter( 'show_admin_bar', '__return_false' );
+add_filter( 'show_admin_bar', '__return_false' );
 
 // Plugin functions
 
@@ -245,6 +246,26 @@ function sga_contentfilter($content = '') {
 						margin-left: 0;
 					}
 	</style>';
+
+
+					$gall .= '
+<script type="text/javascript">
+$(document).ready(function() {
+	/*
+	 *  Simple image gallery. Uses default settings
+	 */
+
+	$(".fancybox").fancybox({
+		"transitionIn"		: "none",
+		"transitionOut"		: "none",
+		"titlePosition" 	: "over",
+		"titleFormat"		: function(title, currentArray, currentIndex, currentOpts) {
+			return "<span id=\'fancybox-title-over\'>Image " + (currentIndex + 1) + " / " + currentArray.length + (title.length ? " &nbsp; " + title : "") + "</span>";
+		}
+	});	
+});
+</script>
+';
 	
 	$gall .= '
 	<div id="gallery-'.$gallid.'" class="gallery galleryid-'.$gallid.' gallery-size-thumbnail">';
@@ -347,11 +368,13 @@ function sga_head() {
 		} else {
 			wp_enqueue_script('jquery', 'http://code.jquery.com/jquery-1.10.2.min.js', false, '1.10.2');
 		}
+
 		wp_enqueue_script('jquery.migrate', 'http://code.jquery.com/jquery-migrate-1.2.1.min.js', array('jquery'), '1.2.1'); // Helps migrating from earlier versions of jQuery
 		wp_enqueue_script('jquery.mousewheel', $urlpath . '/lib/jquery.mousewheel-3.0.6.pack.js', array('jquery'), '3.0.6');
-		wp_enqueue_script('fancybox', $urlpath . '/source/jquery.fancybox.js', array('jquery'), '2.1.5');
-		wp_enqueue_script('fancybox-init', $urlpath . '/fbg-init.js', array('fancybox'), '2.1.5', true);
-		wp_enqueue_style('fancybox', $urlpath . '/source/jquery.fancybox.css');
+		wp_enqueue_script('fancybox', $urlpath . '/fancybox/jquery.fancybox-1.3.4.js', array('jquery'), '1.3.4');
+
+		//wp_enqueue_script('fancybox-init', $urlpath . '/fbg-init.js', array('fancybox'), '1.3.4', true);
+		wp_enqueue_style('fancybox', $urlpath . '/fancybox/jquery.fancybox-1.3.4.css');
 		wp_enqueue_style('fancybox-override', $urlpath . '/fbg-override.css');
 	break;
 	default:
