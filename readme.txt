@@ -3,7 +3,7 @@
 Contributors: cleoni
 Tags: gallery,simple,image,images,photo,photos,picture,pictures,fancybox,jquery,best gallery plugin,slideshow,photo-albums,best-gallery-plugin
 Requires at least: 3.5.0
-Tested up to: 3.7.1
+Tested up to: 3.8.1
 Stable tag: trunk
 License: MIT License
 License URI: http://en.wikipedia.org/wiki/MIT_License
@@ -17,14 +17,11 @@ The simplest way to integrate Wordpress' builtin Photo Galleries into your pages
 
 "Simplest Gallery Plugin" is the simplest way to integrate WordPress' builtin Photo Galleries into your pages with nice visual effects. 
 
-WordPress has got a new Gallery functionality which is great and lets you create, organize and place images galleries in your pages and posts with great ease.
+WordPress has got a builtin Gallery functionality which is great and lets you create, organize and place images galleries in your pages and posts with great ease.
 
-If your theme doesn't render the galleries properly, this little plugin adds a flavor of magic by rendering them with a fancybox jQuery effect at no effort. You can add more gallery styles later if you want.
-
-Just install, activate and experience the wonder of your WordPress galleries!
-
-Note: Includes the free Lightbox FancyBox 2.1.5 by Janis Skarnelis - http://fancyapps.com/fancybox/ (default, builtin gallery style)
-
+If your theme doesn't render the galleries properly, this little plugin adds a flavor of magic by rendering them with a fancybox jQuery effect at no effort. 
+Just install, activate and experience the wonder of your WordPress galleries. 
+More gallery styles can be added later with additional plugins, and you can create your own. See http://www.simplestgallery.com for this.
 
 
 == Installation ==
@@ -60,8 +57,16 @@ For more tips and help/support, check out the [Simplest Gallery Plugin Website](
 * [2-minute Video Tutorial](http://www.simplestgallery.com/support/tutorial-how-to-create-a-perfect-image-gallery/ "2-minute Video Tutorial")
 
 
+== Credits ==
+
+Includes the free Lightbox FancyBox 1.3.4 for the default, builtin gallery style (see http://fancybox.net, Licensed under both MIT and GPL licenses)
+
+
+
 == Changelog ==
 
+* 3.0 2014-04-05	Small fix for Admin Bar display
+* 2.9 2014-04-05	Replaced Fancybox library with to FancyBox 1.3.4 (http://fancybox.net/) which is Licensed under both MIT and GPL licenses
 * 2.8 2013-11-04	Fix for language support - Fix for admin bar disappearence problem (Thanks Mike Hegy)
 * 2.7 2013-10-27	Fixed and tested for WP 3.7 - Added support for user-set columns - Fixed notices with WP_DEBUG set
 * 2.6 2013-10-15	Improved support towards earlier versions of jQuery via the migration jQuery plugin
