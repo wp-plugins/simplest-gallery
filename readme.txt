@@ -3,7 +3,7 @@
 Contributors: cleoni
 Tags: gallery,simple,image,images,photo,photos,picture,pictures,fancybox,jquery,best gallery plugin,slideshow,photo-albums,best-gallery-plugin
 Requires at least: 3.5.0
-Tested up to: 3.9
+Tested up to: 3.9.1
 Stable tag: trunk
 License: MIT License
 License URI: http://en.wikipedia.org/wiki/MIT_License
@@ -59,12 +59,13 @@ For more tips and help/support, check out the [Simplest Gallery Plugin Website](
 
 == Credits ==
 
-Includes the free Lightbox FancyBox 1.3.4 for the default, builtin gallery style (see http://fancybox.net, Licensed under both MIT and GPL licenses)
-
+* Includes the free Lightbox FancyBox 1.3.4 for the default, builtin gallery style (see http://fancybox.net, Licensed under both MIT and GPL licenses)
+* Serbian and Spanish translations by Ogi Djuraskovic - http://firstsiteguide.com/
 
 
 == Changelog ==
 
+* 3.1 2014-05-28	Added translations file for Serbian and Spanish
 * 3.0 2014-04-05	Small fix for Admin Bar display
 * 2.9 2014-04-05	Replaced Fancybox library with to FancyBox 1.3.4 (http://fancybox.net/) which is Licensed under both MIT and GPL licenses
 * 2.8 2013-11-04	Fix for language support - Fix for admin bar disappearence problem (Thanks Mike Hegy)
