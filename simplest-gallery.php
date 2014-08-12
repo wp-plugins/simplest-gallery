@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 3.1
+Version: 3.2
 Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,7 +14,9 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
-   + 2.1 2014-05-28	Added translations file for Serbian and Spanish - Thanks to Ogi Djuraskovic - http://firstsiteguide.com/
+   + 3.2 2014-08-12	Fixed problem in Lightbox WITH/WITHOUT labels. Now you see labels or you don't according to the chosen style
+   			Bundled all necessary jquery scripts with the plugin (no more loading from CDN) for offline use
+   + 3.1 2014-05-28	Added translations file for Serbian and Spanish - Thanks to Ogi Djuraskovic - http://firstsiteguide.com/
    + 3.0 2014-04-05	Small fix for Admin Bar display
    + 2.9 2014-04-05	Replaced Fancybox library with to FancyBox 1.3.4 (http://fancybox.net/) which is Licensed under both MIT and GPL licenses
    + 2.8 2013-11-04	Fix for language support - Fix for admin bar disappearence problem (Thanks Mike Hegy)
@@ -37,7 +39,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 */
 
 // CONFIG
-$sga_version = '3.1';
+$sga_version = '3.2';
 $sga_gallery_types = array(
 				'lightbox'=>'FancyBox without labels',
 				'lightbox_labeled'=>'FancyBox WITH labels',
@@ -222,7 +224,8 @@ function sga_contentfilter($content = '') {
 			$images = sga_gallery_images('large',$ids);
 			$thumbs = sga_gallery_images('thumbnail',$ids);
 			
-			if (!is_array($sga_gallery_params[$gallery_type])) $gallery_type='lightbox';
+			// Safety check: if there are not settings for selected gallery type, just switch back to lightbox
+			if (!in_array($gallery_type,array('lightbox','lightbox_labeled')) && !is_array($sga_gallery_params[$gallery_type])) $gallery_type='lightbox';
 
 			if (count($images)) {
 
@@ -260,10 +263,16 @@ $(document).ready(function() {
 	$(".fancybox").fancybox({
 		"transitionIn"		: "none",
 		"transitionOut"		: "none",
-		"titlePosition" 	: "over",
+		"titlePosition" 	: "over"';
+
+					if ($gallery_type == 'lightbox_labeled') // Add labels
+		$gall .= '
+		,
 		"titleFormat"		: function(title, currentArray, currentIndex, currentOpts) {
-			return "<span id=\'fancybox-title-over\'>Image " + (currentIndex + 1) + " / " + currentArray.length + (title.length ? " &nbsp; " + title : "") + "</span>";
-		}
+			return "<span id=\'fancybox-title-over\'>'.__('Image','simplest-gallery').' "+(currentIndex+1)+" / " + currentArray.length + (title.length ? " &nbsp; " + title : "") + "</span>";
+		}';
+		$gall .= '
+		
 	});	
 });
 </script>
@@ -276,7 +285,7 @@ $(document).ready(function() {
 						$thumb = $thumbs[$i];
 						$image = $images[$i];
 						$gall .= '<dl class="gallery-item"><dt class="gallery-icon">
-						<a class="fancybox" href="'.$image[0].'" title="'.$thumb[5].'" rel="gallery-'.$gallid.'"><img width="'.$thumb[1].'" height="'.$thumb[2].'" class="attachment-thumbnail" src="'.$thumb[0].'" /></a></dt>';
+						<a class="fancybox" href="'.$image[0].'"'.(($gallery_type == 'lightbox_labeled')?' title="'.$thumb[5].'"':'').' rel="gallery-'.$gallid.'"><img width="'.$thumb[1].'" height="'.$thumb[2].'" class="attachment-thumbnail" src="'.$thumb[0].'" /></a></dt>';
 						if ($gallery_type == 'lightbox_labeled') {	// Add labels
 							$gall .= '<dd class="wp-caption-text gallery-caption">'.$thumb[5].'</dd>';
 						}
@@ -366,12 +375,12 @@ function sga_head() {
 	case '':
 		if ($sga_options['sga_gallery_compat']=='specific') {
 			wp_deregister_script('jquery'); // Force WP to use my desired jQuery version
-			wp_register_script('jquery', 'http://code.jquery.com/jquery-1.10.2.min.js', false, '1.10.2');
+			wp_register_script('jquery', $urlpath . '/lib/jquery-1.10.2.min.js', false, '1.10.2');
 		} else {
-			wp_enqueue_script('jquery', 'http://code.jquery.com/jquery-1.10.2.min.js', false, '1.10.2');
+			wp_enqueue_script('jquery', $urlpath . '/lib/jquery-1.10.2.min.js', false, '1.10.2');
 		}
 
-		wp_enqueue_script('jquery.migrate', 'http://code.jquery.com/jquery-migrate-1.2.1.min.js', array('jquery'), '1.2.1'); // Helps migrating from earlier versions of jQuery
+		wp_enqueue_script('jquery.migrate', $urlpath . '/lib/jquery-migrate-1.2.1.min.js', array('jquery'), '1.2.1'); // Helps migrating from earlier versions of jQuery
 		wp_enqueue_script('jquery.mousewheel', $urlpath . '/lib/jquery.mousewheel-3.0.6.pack.js', array('jquery'), '3.0.6');
 		wp_enqueue_script('fancybox', $urlpath . '/fancybox/jquery.fancybox-1.3.4.js', array('jquery'), '1.3.4');
 
@@ -393,7 +402,7 @@ function sga_head() {
 							} else {
 								wp_enqueue_script($k, $v[0], $v[1], $v[2]);
 							}
-							wp_enqueue_script('jquery.migrate', 'http://code.jquery.com/jquery-migrate-1.2.1.min.js', array('jquery'), '1.2.1'); // Helps migrating from earlier versions of jQuery
+							wp_enqueue_script('jquery.migrate', $urlpath . '/lib/jquery-migrate-1.2.1.min.js', array('jquery'), '1.2.1'); // Helps migrating from earlier versions of jQuery
 						} else {			
 							wp_enqueue_script($k, $v[0], $v[1], $v[2]);
 						}
@@ -452,7 +461,7 @@ function sga_get_options($check_post_fields=FALSE) {
 	}	
 }
 
-function sga_register_gallery_type($gallery_type_id,$gallery_type_name,$render_function,$header_function,$scripts_array,$css_array) {
+function sga_register_gallery_type($gallery_type_id,$gallery_type_name,$render_function,$header_function,$scripts_array,$css_array,$params_array=NULL) {
 	global $sga_gallery_types,$sga_gallery_params;
 	
 	if (!$gallery_type_id || !$gallery_type_name) return FALSE;
@@ -472,6 +481,9 @@ function sga_register_gallery_type($gallery_type_id,$gallery_type_name,$render_f
 	}
 	if ($css_array && is_array($css_array)) {
 		$paramsarr['css']=$css_array;
+	}
+	if ($params_array && is_array($params_array)) {
+		$paramsarr['params']=$params_array;
 	}
 	
 	$sga_gallery_params[$gallery_type_id] = $paramsarr;
