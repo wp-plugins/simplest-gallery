@@ -3,7 +3,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
 "Project-Id-Version: Simplest Gallery plugin\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2014-08-20 12:20+0100\n"
+"PO-Revision-Date: 2014-08-20 11:16+0100\n"
 "Last-Translator: Cristiano Leoni <cris.leoni@gmail.com>\n"
 "Language-Team: cris.leoni@gmail.com\n"
 "MIME-Version: 1.0\n"
@@ -17,106 +17,96 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 
 msgid "Simplest Gallery Settings"
-msgstr "Impostazioni di Simplest Gallery"
+msgstr ""
 
 msgid "Main Settings"
-msgstr "Impostazioni Principali"
+msgstr ""
 
 msgid "Gallery style"
-msgstr "Stile della Gallery"
+msgstr ""
 
 msgid "Gallery size"
-msgstr "Dimensioni Gallery"
+msgstr ""
 
 msgid "Width"
-msgstr "Larghezza"
+msgstr ""
 
 msgid "Height"
-msgstr "Altezza"
+msgstr ""
 
 msgid "Compatibility with jQuery"
-msgstr "Compatibilità  con jQuery"
+msgstr ""
 
 msgid "Determine how the galleries will look like on your website"
-msgstr "Determinano come le gallery appariranno sul vostro sito"
+msgstr ""
 
 msgid "Image"
-msgstr "Immagine"
+msgstr ""
 
 msgid ""
 "The above selected style will be applied to all galleries, but you can "
 "change the setting in individual page/posts."
 msgstr ""
-"Lo stile sopra selezionato sarà  applicato a tutte le gallery, ma puoi "
-"cambiare l'impostazione nelle pagine/articoli specifici"
 
 msgid ""
 "This setting is used in case of jQuery conflicts between the theme you are "
 "using and specific gallery types."
 msgstr ""
-"Questa impostazione viene usata in caso di conflitti jQuery tra il tema che "
-"usi e lo specifico tipo di gallery."
 
 msgid "Click here for Support"
-msgstr "Clicca qui per Supporto Tecnico"
+msgstr ""
 
 msgid "In pixels, a few gallery formats use them. If unsure leave blank"
 msgstr ""
-"In pixel, alcuni stili di gallery lo usano. Se non sei sicuro, lascia vuoto"
 
 msgid "Need help?"
-msgstr "Serve aiuto?"
+msgstr ""
 
 msgid "More styles?"
-msgstr "Altri stili?"
+msgstr ""
 
 msgid "Check out the"
-msgstr "Visita il"
+msgstr ""
 
 msgid "Simplest Gallery Website"
-msgstr "Sito web Simplest Gallery"
+msgstr ""
 
 msgid "Take a Look!"
-msgstr "Dai un'occhiata!"
+msgstr ""
+
 
 msgid "is the least intrusive method for your website."
-msgstr "è il metodo meno intrusivo per il tuo sito."
+msgstr ""
 
 msgid "If galleries don't display correctly you can try using"
-msgstr "Se le gallery non funzionano correttamente allora prova a usare"
-
-msgid ""
-"which forces WP to use the required jQuery version for the galleries. In "
-"that case, please check your site still displays correctly: if not just "
-"revert to the default setting or upgrade your WP theme."
 msgstr ""
-"che forza WP a usare la versione di jQuery specifica per le gallery. In quel "
-"caso controlla che il tuo sito continui a funzionare correttamente: se non è "
-"così ritorna all'impostazione di default oppure aggiorna il tuo tema WP."
+
+msgid "which forces WP to use the required jQuery version for the galleries. In that case, please check your site still displays correctly: if not just revert to the default setting or upgrade your WP theme."
+msgstr ""
 
 msgid "If galleries don't work, then change the compatibility setting"
 msgstr ""
-"Se le gallery non funzionano, allora cambia l'impostazione Compatibilità"
 
 msgid "here"
-msgstr "qui"
+msgstr ""
+
 
 # settings
 msgid "Use Gallery Specific jQuery"
-msgstr "Usa jQuery specifico della gallery"
+msgstr ""
 
 msgid "Use WP's default jQuery"
-msgstr "Usa jQuery di Wordpress"
+msgstr ""
 
 msgid "FancyBox without labels"
-msgstr "Fancybox senza etichette"
+msgstr ""
 
 msgid "FancyBox WITH labels"
-msgstr "FancyBox CON etichette"
+msgstr ""
 
 # for ads
 msgid "Professional Wordpress Themes"
-msgstr "Temi Professionali Wordpress"
+msgstr ""
 
 msgid "Affordable Multi-domain Professional Hosting"
-msgstr "Hosting Professionale Multidominio economico"
+msgstr ""
