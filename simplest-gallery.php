@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 3.2
+Version: 3.3
 Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,6 +14,9 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
+   + 3.3 2014-08-20	Fixes to tune-up the priority of filters so that any post text filters should run first and not break the javascript code
+   			Fixes to replace also the default WP jquery-migrate code in case the user chooses to use Simplest Gallery's bundled one
+   			Fixes to allow better language support (new strings added, English .po template file added, IT translation updated)
    + 3.2 2014-08-12	Fixed problem in Lightbox WITH/WITHOUT labels. Now you see labels or you don't according to the chosen style
    			Bundled all necessary jquery scripts with the plugin (no more loading from CDN) for offline use
    + 3.1 2014-05-28	Added translations file for Serbian and Spanish - Thanks to Ogi Djuraskovic - http://firstsiteguide.com/
@@ -39,7 +42,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 */
 
 // CONFIG
-$sga_version = '3.2';
+$sga_version = '3.3';
 $sga_gallery_types = array(
 				'lightbox'=>'FancyBox without labels',
 				'lightbox_labeled'=>'FancyBox WITH labels',
@@ -52,7 +55,7 @@ $sga_compat_types = array(
 
 $sga_gallery_params = array();
 
-add_filter('the_content', 'sga_contentfilter');
+add_filter('the_content', 'sga_contentfilter',10); // This value should allow other text-formatting filters to run first
 add_action('wp_head', 'sga_head',1);
 add_action('wp_footer', 'sga_footer');
 
@@ -111,15 +114,21 @@ function sga_admin_init() {
 	register_setting('sga_options', 'sga_options', 'sga_options_validate');
 		
         add_settings_section('sga_main',__('Main Settings','simplest-gallery'),'sga_section_text','simplest-gallery');	
-	add_settings_field('sga_settings', __('Gallery format','simplest-gallery'), 'sga_settings_html', 'simplest-gallery', 'sga_main');	
+	add_settings_field('sga_settings', __('Gallery style','simplest-gallery'), 'sga_settings_html', 'simplest-gallery', 'sga_main');	
 	add_settings_field('sga_settings_compat', __('Compatibility with jQuery','simplest-gallery'), 'sga_settings_compat_html', 'simplest-gallery', 'sga_main');	
 }
 
 function sga_settings_page() {
+	$urlpath = WP_PLUGIN_URL . '/' . basename(dirname(__FILE__));
 ?>
 	<div class="wrap">
 	    <?php screen_icon(); ?>
-	    <h2><? _e('Simplest Gallery Settings','simplest-gallery') ?></h2>			
+	    <h2><?php _e('Simplest Gallery Settings','simplest-gallery') ?></h2>	
+	    
+	    <table width="100%"><tr>
+	    
+        <td style="vertical-align:top">
+        
 	    <form method="post" action="options.php">
 	        <?php
                     // This prints out all hidden setting fields
@@ -128,12 +137,97 @@ function sga_settings_page() {
 		?>
 	        <?php submit_button(); ?>
 	    </form>
+	    
+   		</td>
+        <td style="vertical-align:top; width:410px">
+
+       
+        <div class="metabox-holder">
+
+		<div class="postbox" >
+
+			<h3 style="font-size:24px; text-transform:uppercase;color:#00C;"><?php _e('Need help?','simplest-gallery');?> <?php _e('More styles?','simplest-gallery');?></h3>
+			<div class="inside">
+
+				<p>
+				<?php _e('Check out the','simplest-gallery'); ?> <a href="http://www.simplestgallery.com/support/" target="_blank"><?php _e('Simplest Gallery Website','simplest-gallery'); ?></a><br/><br/>
+				<a href="http://www.simplestgallery.com/support/" target="_blank"><img width="400" src="<?php echo $urlpath?>/images/banner.png" ></a>
+				</p>
+			</div>
+ 		</div>
+        </div>       
+
+        <div class="metabox-holder">
+
+		<div class="postbox" >
+
+        
+
+        	<h3 style="font-size:24px; text-transform:uppercase;color:#00C;">
+
+        	<?php _e('Take a Look!','simplest-gallery');?>
+
+            </h3>
+
+            
+
+             <h3><?php _e('Professional Wordpress Themes','simplest-gallery')?>: <a href="http://www.simplestgallery.com/aff_elegantthemes" target="_blank">Elegant Themes</a></h3>
+
+             
+
+        	<div class="inside">
+
+                <p>
+
+                <a href="http://www.simplestgallery.com/aff_elegantthemes" target="_blank"><img src="<?php echo $urlpath?>/images/elegantthemes.jpg" ></a>
+
+				</p>
+
+
+
+			</div>
+
+ 
+ 		</div>
+        </div>
+        
+         <div class="metabox-holder">
+
+		<div class="postbox" >           
+
+            <h3><?php _e('Affordable Multi-domain Professional Hosting','simplest-gallery')?>: <a href="http://www.simplestgallery.com/aff_bluehost" target="_blank">BlueHost</a></h3>
+
+            
+
+        	<div class="inside">
+
+                <p>
+
+                <a href="http://www.simplestgallery.com/aff_bluehost" target="_blank"><img width="400" src="<?php echo $urlpath?>/images/bluehost.png"></a>
+
+				</p>
+
+
+
+			</div> 
+
+                        
+
+		</div>
+
+        </div>
+
+              
+
+       </td>
+       </tr>
+       </table>
+       
 	</div>
 <?php 
 }
 
 function sga_section_text() {
-	echo '<div style="width:200px;float:right;background:#ffffaa;padding:20px;">'.__('Need help? Check out the ','simplest-gallery').'<a href="http://www.simplestgallery.com/support/" target="_blank">'.__('Simplest Gallery Website','simplest-gallery').'</a></div>';
 	echo '<p>'.__('Determine how the galleries will look like on your website','simplest-gallery').'.</p>';
 }
 
@@ -148,10 +242,12 @@ function sga_settings_html() {
 <select id="sga_gallery_type" name="sga_options[sga_gallery_type]">
 <?php
 	foreach ($sga_gallery_types as $key=>$val) {
-		echo '<option value="'.$key.'" '.(($typedef==$key)?'selected="selected"':'').'>'.__($val).'</option>'."\n";
+		echo '<option value="'.$key.'" '.(($typedef==$key)?'selected="selected"':'').'>'.__($val,'simplest-gallery').'</option>'."\n";
 	}
 ?>
-</select>
+</select><div style="width:500px; display: block;"><p>
+<?php _e('The above selected style will be applied to all galleries, but you can change the setting in individual page/posts.','simplest-gallery'); ?>
+</p></div>
 <?php
 }
 
@@ -167,12 +263,14 @@ function sga_settings_compat_html() {
 <select id="sga_gallery_compat" name="sga_options[sga_gallery_compat]">
 <?php
 	foreach ($sga_compat_types as $key=>$val) {
-		echo '<option value="'.$key.'" '.(($typedef==$key)?'selected="selected"':'').'>'.__($val).'</option>'."\n";
+		echo '<option value="'.$key.'" '.(($typedef==$key)?'selected="selected"':'').'>'.__($val,'simplest-gallery').'</option>'."\n";
 	}
 ?>
-</select><div style="width:500px; display: block;"><p>This setting is used in case of jQuery conflicts between the theme you are using and specific gallery types.</p>
-<p>"<em>Use WP's default jQuery</em>" is the less intrusive method for your website.</p>
-<p>If galleries don't display correctly you can try using "<em>Use Gallery Specific jQuery</em>" which forces WP to use the required jQuery version for the galleries. In that case, please check your site still displays correctly: if not just revert to the default setting or upgrade your WP theme.</p></div>
+</select><div style="width:500px; display: block;"><p>
+<?php _e('This setting is used in case of jQuery conflicts between the theme you are using and specific gallery types.','simplest-gallery'); ?></p>
+<p>"<em><?php _e('Use WP\'s default jQuery','simplest-gallery'); ?></em>" <?php _e('is the least intrusive method for your website.','simplest-gallery'); ?></p>
+<p><?php _e('If galleries don\'t display correctly you can try using','simplest-gallery'); ?> "<em><?php _e('Use Gallery Specific jQuery','simplest-gallery'); ?></em>" <?php _e('which forces WP to use the required jQuery version for the galleries. In that case, please check your site still displays correctly: if not just revert to the default setting or upgrade your WP theme.','simplest-gallery'); ?>
+</p></div>
 <?php
 }
 
@@ -375,6 +473,7 @@ function sga_head() {
 	case '':
 		if ($sga_options['sga_gallery_compat']=='specific') {
 			wp_deregister_script('jquery'); // Force WP to use my desired jQuery version
+			wp_deregister_script('jquery.migrate'); 
 			wp_register_script('jquery', $urlpath . '/lib/jquery-1.10.2.min.js', false, '1.10.2');
 		} else {
 			wp_enqueue_script('jquery', $urlpath . '/lib/jquery-1.10.2.min.js', false, '1.10.2');
@@ -398,6 +497,7 @@ function sga_head() {
 						if ($k=='jquery') {	
 							if ($sga_options['sga_gallery_compat']=='specific') {
 								wp_deregister_script('jquery'); // Force WP to use my desired jQuery version
+								wp_deregister_script('jquery.migrate'); 
 								wp_register_script('jquery', $v[0], $v[1], $v[2]);
 							} else {
 								wp_enqueue_script($k, $v[0], $v[1], $v[2]);
@@ -513,7 +613,7 @@ function sga_meta_box() {
 		<div class="dbx-content">
 		<?php } ?>
 
-		<div style="width:200px;float:right;background:#ffffaa;padding:20px;">If galleries don't work, then change the compatibility setting <a target="_blank" href="options-general.php?page=SimplestGallery">here</a>. If you need help, <a target="_blank" href="http://www.simplestgallery.com/support/"><?php _e('Click here for Support', 'simplest-gallery') ?></a></div>
+		<div style="width:200px;float:right;background:#ffffaa;padding:20px;"><?php _e('If galleries don\'t work, then change the compatibility setting','simplest-gallery') ?> <a target="_blank" href="options-general.php?page=SimplestGallery"><?php _e('here','simplest-gallery') ?></a>. <?php _e('Need help?','simplest-gallery') ?> <a target="_blank" href="http://www.simplestgallery.com/support/"><?php _e('Click here for Support', 'simplest-gallery') ?></a></div>
 
 		<input value="sga_edit" type="hidden" name="sga_edit" />
 		<table style="margin-bottom:40px">
@@ -522,13 +622,13 @@ function sga_meta_box() {
 		</th>
 		</tr>
 		<tr>
-		<th scope="row" style="text-align:right;"><?php _e('Gallery format','simplest-gallery') ?></th>
+		<th scope="row" style="text-align:right;"><?php _e('Gallery style','simplest-gallery') ?></th>
 		<td>
 		<select id="sga_gallery_type" name="sga_gallery_type">
 		<?php
 			$chosen = false;
 			foreach ($sga_gallery_types as $key=>$val) {
-				echo '<option value="'.$key.'" '.(($gall_type==$key)?'selected="selected"':'').'>'.__($val).'</option>'."\n";
+				echo '<option value="'.$key.'" '.(($gall_type==$key)?'selected="selected"':'').'>'.__($val,'simplest-gallery').'</option>'."\n";
 				$chosen=$chosen||($gall_type==$key);
 			}
 			echo '<option '.((!$chosen)?'selected="selected"':'').' value="">(default)</option>';
