@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 3.3
+Version: 3.4
 Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,6 +14,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
+   + 3.4 2014-09-04	Tested on Wordpress 4.0. Updated and extended translation file for Serbian. Fixes for jquery-migrate.
    + 3.3 2014-08-20	Fixes to tune-up the priority of filters so that any post text filters should run first and not break the javascript code
    			Fixes to replace also the default WP jquery-migrate code in case the user chooses to use Simplest Gallery's bundled one
    			Fixes to allow better language support (new strings added, English .po template file added, IT translation updated)
@@ -473,17 +474,17 @@ function sga_head() {
 	case '':
 		if ($sga_options['sga_gallery_compat']=='specific') {
 			wp_deregister_script('jquery'); // Force WP to use my desired jQuery version
-			wp_deregister_script('jquery.migrate'); 
+			wp_deregister_script('jquery-migrate'); 
 			wp_register_script('jquery', $urlpath . '/lib/jquery-1.10.2.min.js', false, '1.10.2');
 		} else {
 			wp_enqueue_script('jquery', $urlpath . '/lib/jquery-1.10.2.min.js', false, '1.10.2');
 		}
 
-		wp_enqueue_script('jquery.migrate', $urlpath . '/lib/jquery-migrate-1.2.1.min.js', array('jquery'), '1.2.1'); // Helps migrating from earlier versions of jQuery
+		wp_enqueue_script('jquery-migrate', $urlpath . '/lib/jquery-migrate-1.2.1.min.js', array('jquery'), '1.2.1'); // Helps migrating from earlier versions of jQuery
+		//wp_enqueue_script('jquery.browser', $urlpath . '/lib/jquery.browser.js', array('jquery'), '0.0.6');
 		wp_enqueue_script('jquery.mousewheel', $urlpath . '/lib/jquery.mousewheel-3.0.6.pack.js', array('jquery'), '3.0.6');
 		wp_enqueue_script('fancybox', $urlpath . '/fancybox/jquery.fancybox-1.3.4.js', array('jquery'), '1.3.4');
 
-		//wp_enqueue_script('fancybox-init', $urlpath . '/fbg-init.js', array('fancybox'), '1.3.4', true);
 		wp_enqueue_style('fancybox', $urlpath . '/fancybox/jquery.fancybox-1.3.4.css');
 		wp_enqueue_style('fancybox-override', $urlpath . '/fbg-override.css');
 	break;

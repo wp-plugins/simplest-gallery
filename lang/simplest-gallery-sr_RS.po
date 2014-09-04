@@ -3,7 +3,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
 "Project-Id-Version: Simplest Gallery plugin\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2014-05-19 10:05+0100\n"
+"PO-Revision-Date: 2014-08-25 09:22+0100\n"
 "Last-Translator: Borisa Djuraskovic <borisad@webhostinghub.com>\n"
 "Language-Team: cris.leoni@gmail.com\n"
 "MIME-Version: 1.0\n"
@@ -17,4 +17,106 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 
 msgid "Simplest Gallery Settings"
-msgstr "Simplest Gallery postavke"
+msgstr "Simplest Gallery Podešavanja"
+
+msgid "Main Settings"
+msgstr "Glavna podešavanja"
+
+msgid "Gallery style"
+msgstr "Stil galerije"
+
+msgid "Gallery size"
+msgstr "Veličina galerije"
+
+msgid "Width"
+msgstr "Širina"
+
+msgid "Height"
+msgstr "Visina"
+
+msgid "Compatibility with jQuery"
+msgstr "Kompatibilnost sa jQuery-jem"
+
+msgid "Determine how the galleries will look like on your website"
+msgstr "Odredite kako će galerije izgledati na vašem web site-u"
+
+msgid "Image"
+msgstr "Slika"
+
+msgid ""
+"The above selected style will be applied to all galleries, but you can "
+"change the setting in individual page/posts."
+msgstr ""
+"Odabrani stil biće primenjen na sve galerije, ali ovo podešavanje možete "
+"promeniti na pojedinačnim stranicama/postovima."
+
+msgid ""
+"This setting is used in case of jQuery conflicts between the theme you are "
+"using and specific gallery types."
+msgstr ""
+"Ovo podešavanje koristi se u slučaju jQuery konflikta između teme koju "
+"koristite i specifičnih vrsta galerija.  "
+
+msgid "Click here for Support"
+msgstr "Kliknite ovde za podršku"
+
+msgid "In pixels, a few gallery formats use them. If unsure leave blank"
+msgstr ""
+"U pikselima; malobrojni formati galerija ih koriste. Ako niste sigurni, "
+"ostavite prazno."
+
+msgid "Need help?"
+msgstr "Treba vam pomoć?"
+
+msgid "More styles?"
+msgstr "Više stilova?"
+
+msgid "Check out the"
+msgstr "Pogledajte"
+
+msgid "Simplest Gallery Website"
+msgstr "Simplest Gallery web site "
+
+msgid "Take a Look!"
+msgstr "Pogledajte!"
+
+msgid "is the least intrusive method for your website."
+msgstr "je najmanje nametljivmetod za vaš web site "
+
+msgid "If galleries don't display correctly you can try using"
+msgstr "ako galerije ne prikazuju tačno, možete probati da koristite"
+
+msgid ""
+"which forces WP to use the required jQuery version for the galleries. In "
+"that case, please check your site still displays correctly: if not just "
+"revert to the default setting or upgrade your WP theme."
+msgstr ""
+"koji tera WP da koristi obaveznu jQuery verziju za galerije. U tom slučaju, "
+"proverite da li vam se site ispravno prikazuje: ako ne, samo se vratite na "
+"podrazumevano podešavanje ili nadogradite svoju WP temu.  "
+
+msgid "If galleries don't work, then change the compatibility setting"
+msgstr "Ako galerije ne funkcionišu, promenite podešavanja kompatibilnosti"
+
+msgid "here"
+msgstr "ovde"
+
+# settings
+msgid "Use Gallery Specific jQuery"
+msgstr "Koristi specifičnu jQuery galeriju"
+
+msgid "Use WP's default jQuery"
+msgstr "Koristi podrazumevani WP jQuery"
+
+msgid "FancyBox without labels"
+msgstr "FancyBox bez oznaka"
+
+msgid "FancyBox WITH labels"
+msgstr "FancyBox SA oznakama"
+
+# for ads
+msgid "Professional Wordpress Themes"
+msgstr "Profesionalne Wordpress teme"
+
+msgid "Affordable Multi-domain Professional Hosting"
+msgstr "Pristupačan multi-domain profesionalni hosting"
