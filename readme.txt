@@ -3,7 +3,7 @@
 Contributors: cleoni
 Tags: gallery,simple,image,images,photo,photos,picture,pictures,fancybox,jquery,best gallery plugin,slideshow,photo-albums,best-gallery-plugin
 Requires at least: 3.5.0
-Tested up to: 3.9.2
+Tested up to: 4.0
 Stable tag: trunk
 License: MIT License
 License URI: http://en.wikipedia.org/wiki/MIT_License
@@ -49,8 +49,8 @@ For more tips and help/support, check out the [Simplest Gallery Plugin Website](
 == Demo ==
 
 * [Demo page for FancyBox (default) style](http://www.simplestgallery.com/what-is-simplest-gallery-plugin/ "Demo page for FancyBox (default) style")
-* [Demo page for ImageFlow style](http://www.simplestgallery.com/add-ons/imageflow-gallery-style-plugin/ "Demo page for ImageFlow style")
 * [Demo page for LightView Responsive style](http://www.simplestgallery.com/add-ons/lightview-gallery-style-plugin/ "Demo page for LightView style")
+* [Demo page for ImageFlow style](http://www.simplestgallery.com/add-ons/imageflow-gallery-style-plugin/ "Demo page for ImageFlow style")
 * [Demo page for jQuery Cycle Slideshow style](http://www.simplestgallery.com/add-ons/jquery-cycle-slideshow-gallery-style-plugin/ "Demo page for jQuery Cycle Slideshow style")
 * [Demo page for PikaChoose style](http://www.simplestgallery.com/add-ons/pikachoose/ "Demo page for ImageFlow style")
 
@@ -60,17 +60,17 @@ For more tips and help/support, check out the [Simplest Gallery Plugin Website](
 == Credits ==
 
 * Includes the free Lightbox FancyBox 1.3.4 for the default, builtin gallery style (see http://fancybox.net, Licensed under both MIT and GPL licenses)
-* Serbian and Spanish translations by Ogi Djuraskovic - http://firstsiteguide.com/
 
 
 == Changelog ==
 
+* 3.4 2014-09-04	Tested on Wordpress 4.0. Updated and extended translation file for Serbian. Fixes for jquery-migrate.
 * 3.3 2014-08-20	Fixes to tune-up the priority of filters so that any post text filters should run first and not break the javascript code
    			Fixes to replace also the default WP jquery-migrate code in case the user chooses to use Simplest Gallery's bundled one
    			Fixes to allow better language support (new strings added, English .po template file added, IT translation updated)
 * 3.2 2014-08-12	Fixed problem in Lightbox WITH/WITHOUT labels. Now you see labels or you don't according to the chosen style
    			Bundled all necessary jquery scripts with the plugin (no more loading from CDN) for offline use
-* 3.1 2014-05-28	Added translations file for Serbian and Spanish
+* 3.1 2014-05-28	Added translations file for Serbian - thanks Ogi Djuraskovic - http://firstsiteguide.com/
 * 3.0 2014-04-05	Small fix for Admin Bar display
 * 2.9 2014-04-05	Replaced Fancybox library with to FancyBox 1.3.4 (http://fancybox.net/) which is Licensed under both MIT and GPL licenses
 * 2.8 2013-11-04	Fix for language support - Fix for admin bar disappearence problem (Thanks Mike Hegy)
