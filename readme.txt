@@ -3,7 +3,7 @@
 Contributors: cleoni
 Tags: gallery,simple,image,images,photo,photos,picture,pictures,fancybox,jquery,best gallery plugin,slideshow,photo-albums,best-gallery-plugin
 Requires at least: 3.5.0
-Tested up to: 4.0
+Tested up to: 4.1
 Stable tag: trunk
 License: MIT License
 License URI: http://en.wikipedia.org/wiki/MIT_License
@@ -64,6 +64,7 @@ For more tips and help/support, check out the [Simplest Gallery Plugin Website](
 
 == Changelog ==
 
+* 3.5 2014-12-21	Tested on 4.1. Added translation file for Portuguese - thanks Luis Osorio - http://www.seofreelancer.pt/consultoria-seo
 * 3.4 2014-09-04	Tested on Wordpress 4.0. Updated and extended translation file for Serbian. Fixes for jquery-migrate.
 * 3.3 2014-08-20	Fixes to tune-up the priority of filters so that any post text filters should run first and not break the javascript code
    			Fixes to replace also the default WP jquery-migrate code in case the user chooses to use Simplest Gallery's bundled one

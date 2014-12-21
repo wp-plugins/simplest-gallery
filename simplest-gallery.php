@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simplest Gallery
-Version: 3.4
+Version: 3.5
 Plugin URI: http://www.simplestgallery.com/
 Description: The simplest way to integrate Wordpress' builtin Photo Galleries into your pages with a nice jQuery fancybox effect
 Author: Cristiano Leoni
@@ -14,6 +14,7 @@ Author URI: http://www.linkedin.com/pub/cristiano-leoni/2/b53/34
 /*
 
     History
+   + 3.5 2014-12-21	Tested on 4.1. Added translation file for Portuguese - thanks Luis Osorio - http://www.seofreelancer.pt/consultoria-seo
    + 3.4 2014-09-04	Tested on Wordpress 4.0. Updated and extended translation file for Serbian. Fixes for jquery-migrate.
    + 3.3 2014-08-20	Fixes to tune-up the priority of filters so that any post text filters should run first and not break the javascript code
    			Fixes to replace also the default WP jquery-migrate code in case the user chooses to use Simplest Gallery's bundled one
@@ -172,15 +173,11 @@ function sga_settings_page() {
 
             
 
-             <h3><?php _e('Professional Wordpress Themes','simplest-gallery')?>: <a href="http://www.simplestgallery.com/aff_elegantthemes" target="_blank">Elegant Themes</a></h3>
-
-             
-
         	<div class="inside">
 
                 <p>
 
-                <a href="http://www.simplestgallery.com/aff_elegantthemes" target="_blank"><img src="<?php echo $urlpath?>/images/elegantthemes.jpg" ></a>
+                <a href="http://www.simplestgallery.com/aff_a2" target="_blank"><img src="<?php echo $urlpath?>/images/a2h.png" ></a>
 
 				</p>
 
@@ -196,15 +193,15 @@ function sga_settings_page() {
 
 		<div class="postbox" >           
 
-            <h3><?php _e('Affordable Multi-domain Professional Hosting','simplest-gallery')?>: <a href="http://www.simplestgallery.com/aff_bluehost" target="_blank">BlueHost</a></h3>
+             <h3><?php _e('Professional Wordpress Themes','simplest-gallery')?>: <a href="http://www.simplestgallery.com/aff_elegantthemes" target="_blank">Elegant Themes</a></h3>
 
-            
+             
 
         	<div class="inside">
 
                 <p>
 
-                <a href="http://www.simplestgallery.com/aff_bluehost" target="_blank"><img width="400" src="<?php echo $urlpath?>/images/bluehost.png"></a>
+                <a href="http://www.simplestgallery.com/aff_elegantthemes" target="_blank"><img src="<?php echo $urlpath?>/images/elegantthemes.jpg" ></a>
 
 				</p>
 
