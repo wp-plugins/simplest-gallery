@@ -3,7 +3,7 @@
 Contributors: cleoni
 Tags: gallery,simple,image,images,photo,photos,picture,pictures,fancybox,jquery,best gallery plugin,slideshow,photo-albums,best-gallery-plugin
 Requires at least: 3.5.0
-Tested up to: 4.1
+Tested up to: 4.2
 Stable tag: trunk
 License: MIT License
 License URI: http://en.wikipedia.org/wiki/MIT_License
@@ -64,16 +64,16 @@ For more tips and help/support, check out the [Simplest Gallery Plugin Website](
 
 == Changelog ==
 
-* 3.5 2014-12-21	Tested on 4.1. Added translation file for Portuguese - thanks Luis Osorio - http://www.seofreelancer.pt/consultoria-seo
+* 3.5 2014-12-21	Tested on 4.1. Added translation file for Portuguese - thanks Luis Osorio - www.seofreelancer.pt/consultoria-seo
 * 3.4 2014-09-04	Tested on Wordpress 4.0. Updated and extended translation file for Serbian. Fixes for jquery-migrate.
 * 3.3 2014-08-20	Fixes to tune-up the priority of filters so that any post text filters should run first and not break the javascript code
    			Fixes to replace also the default WP jquery-migrate code in case the user chooses to use Simplest Gallery's bundled one
    			Fixes to allow better language support (new strings added, English .po template file added, IT translation updated)
 * 3.2 2014-08-12	Fixed problem in Lightbox WITH/WITHOUT labels. Now you see labels or you don't according to the chosen style
    			Bundled all necessary jquery scripts with the plugin (no more loading from CDN) for offline use
-* 3.1 2014-05-28	Added translations file for Serbian - thanks Ogi Djuraskovic - http://firstsiteguide.com/
+* 3.1 2014-05-28	Added translations file for Serbian - thanks Ogi Djuraskovic - firstsiteguide.com
 * 3.0 2014-04-05	Small fix for Admin Bar display
-* 2.9 2014-04-05	Replaced Fancybox library with to FancyBox 1.3.4 (http://fancybox.net/) which is Licensed under both MIT and GPL licenses
+* 2.9 2014-04-05	Replaced Fancybox library with to FancyBox 1.3.4 (www.fancybox.net) which is Licensed under both MIT and GPL licenses
 * 2.8 2013-11-04	Fix for language support - Fix for admin bar disappearence problem (Thanks Mike Hegy)
 * 2.7 2013-10-27	Fixed and tested for WP 3.7 - Added support for user-set columns - Fixed notices with WP_DEBUG set
 * 2.6 2013-10-15	Improved support towards earlier versions of jQuery via the migration jQuery plugin
@@ -85,7 +85,7 @@ For more tips and help/support, check out the [Simplest Gallery Plugin Website](
 * 2.3 2013-08-28	Optimized code for speed. Bug fix: Plugin did not work for WP gallery setting different from Link to: Attachment Page - now fixed.
 * 2.2 2013-08-28	Bug fix in fbg-init.js. Added setting to force WP to use the correct version of jQuery - fixed compatibility issues with WP 3.6
 * 2.1 2013-07-21	Added folders to the distribution (language support and more stuff) 
-* 2.0 2013-07-21	Replaced included fancybox library to FancyBox 2.1.5 by Janis Skarnelis - http://fancyapps.com/fancybox/ in order to fix IE10 compatibility issues for default gallery style
+* 2.0 2013-07-21	Replaced included fancybox library to FancyBox 2.1.5 by Janis Skarnelis - www.fancyapps.com/fancybox/ in order to fix IE10 compatibility issues for default gallery style
 * 1.3 2013-04-29	Added API support for external modules: More gallery formats can now be easily added with custom made plugins. 
    			Added support for gallery_type custom field for using different gallery types on different posts/pages
 * 1.2 2013-04-16	Added possibility to select from a list of gallery types (for the moment: with/without labels). Added multi-language support.
